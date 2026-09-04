@@ -1,0 +1,14 @@
+{
+    "Name": "ChasePlane Cameras",
+    "Description": "Changez de vue caméra ChasePlane (MSFS 2024) depuis votre Stream Deck. Choisissez n'importe quelle vue Interne, Externe ou Monde ; la touche s'allume tant que cette vue est active.",
+    "com.stalexcorp.chaseplane.set-camera": {
+        "Name": "Choisir une caméra",
+        "Tooltip": "Bascule sur une vue caméra ChasePlane. La touche est mise en évidence tant que la vue est active.",
+        "States": [{ "Name": "Inactive" }, { "Name": "Active" }]
+    },
+    "Localization": {
+        "Internal": "Interne",
+        "External": "Externe",
+        "World": "Monde"
+    }
+}

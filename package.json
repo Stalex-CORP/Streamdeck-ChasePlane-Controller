@@ -1,0 +1,38 @@
+{
+    "name": "streamdeck-cp",
+    "version": "0.2.0",
+    "private": true,
+    "description": "Stream Deck plugin for ChasePlane (MSFS 2024): switch cameras from your deck",
+    "type": "module",
+    "scripts": {
+        "build": "rollup -c",
+        "watch": "rollup -c -w --watch.onEnd=\"streamdeck restart com.stalexcorp.chaseplane\"",
+        "lint": "eslint --max-warnings 0",
+        "format": "prettier --write .",
+        "validate": "streamdeck validate com.stalexcorp.chaseplane.sdPlugin",
+        "pack": "streamdeck pack com.stalexcorp.chaseplane.sdPlugin --output dist",
+        "probe": "node scripts/probe.mjs"
+    },
+    "prettier": "@elgato/prettier-config",
+    "dependencies": {
+        "@elgato/streamdeck": "^2.1.2",
+        "ws": "^8.21.3"
+    },
+    "devDependencies": {
+        "@elgato/cli": "^1.9.0",
+        "@elgato/eslint-config": "^0.3.2",
+        "@elgato/prettier-config": "^0.3.3",
+        "@rollup/plugin-commonjs": "^29.0.2",
+        "@rollup/plugin-node-resolve": "^16.0.3",
+        "@rollup/plugin-terser": "^1.0.0",
+        "@rollup/plugin-typescript": "^12.1.0",
+        "@tsconfig/node20": "^20.1.2",
+        "@types/node": "~24.1.0",
+        "@types/ws": "^8.18.1",
+        "eslint": "^9.0.0",
+        "prettier": "^3.0.0",
+        "rollup": "^4.0.2",
+        "tslib": "^2.6.2",
+        "typescript": "^5.2.2"
+    }
+}

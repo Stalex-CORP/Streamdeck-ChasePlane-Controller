@@ -1,0 +1,56 @@
+{
+    "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+    "Name": "ChasePlane Cameras",
+    "Version": "0.2.0.0",
+    "Author": "Stalex",
+    "Description": "Switch ChasePlane (MSFS 2024) camera views from your Stream Deck. Pick any Internal, External or World view; the key lights up while that view is active.",
+    "Category": "ChasePlane Cameras",
+    "CategoryIcon": "imgs/plugin/category-icon",
+    "Icon": "imgs/plugin/marketplace",
+    "URL": "https://github.com/stalexcorp/streamdeck-cp",
+    "SupportURL": "https://github.com/stalexcorp/streamdeck-cp/issues",
+    "CodePath": "bin/plugin.js",
+    "UUID": "com.stalexcorp.chaseplane",
+    "SDKVersion": 3,
+    "Software": {
+        "MinimumVersion": "7.1"
+    },
+    "OS": [
+        {
+            "Platform": "windows",
+            "MinimumVersion": "10"
+        }
+    ],
+    "Nodejs": {
+        "Version": "24",
+        "Debug": "enabled"
+    },
+    "ApplicationsToMonitor": {
+        "windows": ["CP MSFS Bridge.exe"]
+    },
+    "Actions": [
+        {
+            "Name": "Set Camera",
+            "UUID": "com.stalexcorp.chaseplane.set-camera",
+            "Icon": "imgs/actions/set-camera/icon",
+            "Tooltip": "Switch to a ChasePlane camera view. The key is highlighted while the view is active.",
+            "PropertyInspectorPath": "ui/set-camera.html",
+            "Controllers": ["Keypad"],
+            "DisableAutomaticStates": true,
+            "States": [
+                {
+                    "Name": "Inactive",
+                    "Image": "imgs/actions/set-camera/key",
+                    "TitleAlignment": "bottom",
+                    "FontSize": 9
+                },
+                {
+                    "Name": "Active",
+                    "Image": "imgs/actions/set-camera/key-active",
+                    "TitleAlignment": "bottom",
+                    "FontSize": 9
+                }
+            ]
+        }
+    ]
+}

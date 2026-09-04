@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+	<head lang="en">
+		<title>Set Camera Settings</title>
+		<meta charset="utf-8" />
+		<script src="sdpi-components.js"></script>
+		<script>
+			// Property inspector localization (sdpi-components): labels use __MSG_key__.
+			SDPIComponents.i18n.locales = {
+				en: {
+					camera: "Camera",
+					status: "ChasePlane",
+					loading: "Loading views…",
+					placeholder: "Select a view",
+					connected: "Connected",
+					disconnected: "Not connected — start MSFS 2024 with ChasePlane",
+					active: "This view is currently active",
+					help: "Views are listed per aircraft, grouped as in ChasePlane (Internal / External / World).",
+				},
+				fr: {
+					camera: "Caméra",
+					status: "ChasePlane",
+					loading: "Chargement des vues…",
+					placeholder: "Choisir une vue",
+					connected: "Connecté",
+					disconnected: "Non connecté — lancez MSFS 2024 avec ChasePlane",
+					active: "Cette vue est actuellement active",
+					help: "Les vues sont listées par avion, groupées comme dans ChasePlane (Interne / Externe / Monde).",
+				},
+			};
+		</script>
+		<style>
+			.status {
+				display: flex;
+				align-items: center;
+				gap: 6px;
+				min-height: 26px;
+			}
+			.status .dot {
+				flex: none;
+				width: 8px;
+				height: 8px;
+				border-radius: 50%;
+				background: #d13b3b;
+			}
+			.status.connected .dot {
+				background: #2ea44f;
+			}
+			.status .active {
+				color: #2ea44f;
+			}
+		</style>
+	</head>
+
+	<body>
+		<sdpi-item label="__MSG_camera__">
+			<sdpi-select
+				setting="guid"
+				datasource="getCameras"
+				loading="__MSG_loading__"
+				placeholder="__MSG_placeholder__"
+				hot-reload
+				show-refresh
+			></sdpi-select>
+		</sdpi-item>
+
+		<sdpi-item label="__MSG_status__">
+			<div id="status" class="status" hidden>
+				<span class="dot"></span>
+				<span id="status-text"></span>
+				<span id="status-active" class="active" hidden>●</span>
+			</div>
+		</sdpi-item>
+
+		<sdpi-item>
+			<small><sdpi-i18n key="help"></sdpi-i18n></small>
+		</sdpi-item>
+
+		<script>
+			// Connection status pushed by the plugin ({ event: "status", connected, aircraft, isActive }).
+			const { streamDeckClient, i18n } = SDPIComponents;
+			const status = document.getElementById("status");
+			const text = document.getElementById("status-text");
+			const active = document.getElementById("status-active");
+
+			streamDeckClient.sendToPropertyInspector.subscribe((message) => {
+				const payload = message.payload;
+				if (payload?.event !== "status") return;
+
+				status.hidden = false;
+				status.classList.toggle("connected", payload.connected === true);
+				text.textContent = payload.connected
+					? `${i18n.getMessage("connected")}${payload.aircraft ? ` — ${payload.aircraft}` : ""}`
+					: i18n.getMessage("disconnected");
+				active.hidden = payload.isActive !== true;
+				active.title = i18n.getMessage("active");
+			});
+		</script>
+	</body>
+</html>

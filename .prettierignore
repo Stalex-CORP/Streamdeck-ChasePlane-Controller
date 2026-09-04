@@ -1,0 +1,6 @@
+node_modules/
+*.sdPlugin/bin/
+*.sdPlugin/ui/sdpi-components.js
+*.sdPlugin/imgs/
+docs/
+dist/

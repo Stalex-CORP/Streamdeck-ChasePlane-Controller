@@ -1,0 +1,2 @@
+# Excluded from the .streamDeckPlugin bundle (on top of the CLI defaults: .git, .env*, *.log, *.js.map)
+logs/
