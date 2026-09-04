@@ -1,4 +1,4 @@
-# ChasePlane Cameras — Stream Deck plugin
+# ChasePlane — Stream Deck plugin
 
 Switch [ChasePlane](https://parallel42.com/products/chaseplane) (MSFS 2024) camera views from a Stream Deck.
 One key = one view; the key is highlighted while that view is active. Views are listed per aircraft and
@@ -18,17 +18,17 @@ The protocol is documented in [docs/chaseplane-bridge-api.md](docs/chaseplane-br
 ## Project layout
 
 ```
-com.stalexcorp.chaseplane.sdPlugin/   the plugin (what gets packaged)
+fr.stalexcorp.msfschaseplane.sdPlugin/   the plugin (what gets packaged)
   manifest.json                       SDK 3 manifest
   en.json, fr.json                    localization (plugin / action names, group labels)
-  ui/set-camera.html                  property inspector (sdpi-components v4, vendored)
+  ui/camera.html                  property inspector (sdpi-components v4, vendored)
   imgs/plugin/                        Marketplace icon (256/512) and category icon (28/56, white)
-  imgs/actions/set-camera/            action icon (20/40, white), default state images (72/144)
-  imgs/actions/set-camera/keys/       key images per mode/state, generated at build (git-ignored)
+  imgs/actions/camera/            action icon (20/40, white), default state images (72/144)
+  imgs/actions/camera/keys/       key images per mode/state, generated at build (git-ignored)
   bin/plugin.js                       bundle, generated at build (git-ignored)
 src/
   plugin.ts                           entry point: registers the action, connects, starts the client
-  actions/set-camera.ts               "Set Camera" action (states, images, title, property inspector)
+  actions/camera.ts               "Set Camera" action (states, images, title, property inspector)
   chaseplane/client.ts                bridge client (handshake, request/reply, events, reconnection)
   chaseplane/protocol.ts              protocol types and helpers
   images/{internal,external,world}.png white 64x64 icons used to build the key images
@@ -42,15 +42,15 @@ scripts/probe.mjs                     CLI probe for the bridge API (`npm run pro
 npm install
 npm run build              # rollup → bin/plugin.js (+ key images)
 streamdeck dev             # once: enables developer mode (needed for link / restart)
-streamdeck link com.stalexcorp.chaseplane.sdPlugin   # once
+streamdeck link fr.stalexcorp.msfschaseplane.sdPlugin   # once
 npm run watch              # rebuild + restart the plugin on every change
 ```
 
 - `npm run lint` — ESLint with `@elgato/eslint-config` (zero warnings policy).
 - `npm run format` — Prettier with `@elgato/prettier-config`.
 - `npm run validate` — `streamdeck validate` (manifest, images, layout rules).
-- `npm run pack` — `streamdeck pack` → `dist/com.stalexcorp.chaseplane.streamDeckPlugin`.
-- Logs: `com.stalexcorp.chaseplane.sdPlugin/logs/`. Property inspector debugging: http://localhost:23654/.
+- `npm run pack` — `streamdeck pack` → `dist/fr.stalexcorp.msfschaseplane.streamDeckPlugin`.
+- Logs: `fr.stalexcorp.msfschaseplane.sdPlugin/logs/`. Property inspector debugging: http://localhost:23654/.
 
 ## Publishing checklist (Marketplace)
 

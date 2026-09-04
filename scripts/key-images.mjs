@@ -1,12 +1,7 @@
 /**
- * Generates the key images used at runtime by the "Set camera" action.
- *
- * For each camera mode (src/images/<mode>.png, white icon on transparent background) three SVGs are
- * produced in <plugin>/imgs/actions/set-camera/keys/: "<mode>-inactive.svg", "<mode>-active.svg" and
- * "<mode>-offline.svg". The plugin sets them with `setImage("imgs/...svg")`, so they are shipped with the
- * plugin and cached by Stream Deck instead of being re-encoded on every update.
- *
- * Run by the rollup build (see rollup.config.mjs) or standalone: `node scripts/key-images.mjs`.
+ * Generates the runtime key images of the "Camera" action: for each src/images/<mode>.png, three SVGs
+ * (<mode>-inactive / -active / -offline) in <plugin>/imgs/actions/camera/keys/. Shipped with the plugin
+ * and set by path, so Stream Deck caches them. Run by rollup or standalone: `node scripts/key-images.mjs`.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -96,7 +91,7 @@ if (
 ) {
 	generateKeyImages(
 		path.resolve("src/images"),
-		path.resolve("com.stalexcorp.chaseplane.sdPlugin/imgs/actions/set-camera/keys"),
+		path.resolve("fr.stalexcorp.msfschaseplane.sdPlugin/imgs/actions/camera/keys"),
 	);
 	console.log("Key images generated.");
 }

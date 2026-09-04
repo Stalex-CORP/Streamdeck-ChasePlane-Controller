@@ -1,8 +1,8 @@
 {
-    "Name": "ChasePlane Cameras",
+    "Name": "ChasePlane",
     "Description": "Switch ChasePlane (MSFS 2024) camera views from your Stream Deck. Pick any Internal, External or World view; the key lights up while that view is active.",
-    "com.stalexcorp.chaseplane.set-camera": {
-        "Name": "Set Camera",
+    "fr.stalexcorp.msfschaseplane.camera": {
+        "Name": "Camera",
         "Tooltip": "Switch to a ChasePlane camera view. The key is highlighted while the view is active.",
         "States": [{ "Name": "Inactive" }, { "Name": "Active" }]
     },

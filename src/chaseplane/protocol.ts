@@ -1,53 +1,50 @@
 /**
- * Types describing the ChasePlane (MSFS 2024) Bridge WebSocket API.
- *
- * The protocol was derived from the official "ChasePlane Remote" web UI shipped inside
- * `CP MSFS Bridge.exe` and confirmed against live captures (see docs/chaseplane-bridge-api.md).
+ * Types of the ChasePlane (MSFS 2024) bridge WebSocket API. See docs/chaseplane-bridge-api.md.
  */
 
-/** Camera mode as reported by the bridge (`views[].mode`, `cam_mode_set.mode`). */
+/** Camera mode (`views[].mode`, `cam_mode_set.mode`). */
 export const CameraMode = {
-	/** Cockpit / cabin views. */
+	/** Cockpit / cabin. */
 	Internal: 0,
-	/** Views attached to the outside of the aircraft. */
+	/** Attached to the aircraft. */
 	External: 1,
-	/** Free / world views (drone, tower, runway, ...). */
+	/** Drone, tower, runway, ... */
 	World: 2,
 } as const;
 
-/** Camera mode value: 0 internal, 1 external, 2 world. */
+/** Camera mode value. */
 export type CameraMode = (typeof CameraMode)[keyof typeof CameraMode];
 
-/** All camera modes, in the order ChasePlane displays them. */
+/** Camera modes in ChasePlane display order. */
 export const CAMERA_MODES: readonly CameraMode[] = [CameraMode.Internal, CameraMode.External, CameraMode.World];
 
-/** A camera view (preset) returned by `get_views`. Only the fields the plugin relies on are typed. */
+/** A camera view returned by `get_views` (only the fields used by the plugin). */
 export type CameraView = {
-	/** Unique identifier of the view; used by `set_view_by_guid`. */
+	/** Unique identifier, used by `set_view_by_guid`. */
 	guid: string;
-	/** Name as entered by the user (not unique). */
+	/** User-facing name (not unique). */
 	name: string;
-	/** Camera mode the view belongs to. */
+	/** Camera mode. */
 	mode: CameraMode;
 	/** Position within its mode. */
 	index?: number;
 	/** `USER_DEFINED`, or a built-in world type such as `WORLD_TOWER`. */
 	view_type?: string;
-	/** Whether the view can be saved (false for built-in world views). */
+	/** False for built-in world views. */
 	can_save?: boolean;
-	/** Whether the view is skipped when cycling cameras. */
+	/** Skipped when cycling cameras. */
 	skip_cycle?: boolean;
-	/** Airport the world view is bound to, if any. */
+	/** Airport of an airport-bound world view. */
 	icao?: string;
-	/** Name suffix flag: left side. */
+	/** Name suffix: left. */
 	has_left_suffix?: boolean;
-	/** Name suffix flag: right side. */
+	/** Name suffix: right. */
 	has_right_suffix?: boolean;
-	/** Name suffix flag: forward. */
+	/** Name suffix: forward. */
 	has_fwd_suffix?: boolean;
-	/** Name suffix flag: middle. */
+	/** Name suffix: middle. */
 	has_mid_suffix?: boolean;
-	/** Name suffix flag: aft. */
+	/** Name suffix: aft. */
 	has_aft_suffix?: boolean;
 };
 
@@ -57,31 +54,31 @@ export type CurrentCamera = {
 	mode?: CameraMode;
 	/** GUID of the active view. */
 	preset_guid?: string | null;
-	/** Name of the previewed view, if any. */
+	/** Previewed view name. */
 	preview_name?: string | null;
-	/** Look-at target, if any. */
+	/** Look-at target. */
 	look_at?: string | null;
-	/** Whether cinematic mode is on. */
+	/** Cinematic mode on. */
 	cinematic_enabled?: boolean;
 	/** Active control profile. */
 	control_profile?: number;
-	/** Whether the aircraft views are loaded. */
+	/** Aircraft views loaded. */
 	views_loaded?: boolean;
-	/** Whether ChasePlane is enabled. */
+	/** ChasePlane enabled. */
 	master_enabled?: boolean;
 };
 
 /** Payload of the `initialized` event. */
 export type SystemInfo = {
-	/** ChasePlane version, e.g. `2026.35.4.22`. */
+	/** ChasePlane version. */
 	chaseplane_version?: string;
 	/** Simulator, e.g. `MSFS2024`. */
 	simulator_version?: string;
-	/** Simulator distribution, e.g. `Store`. */
+	/** Distribution, e.g. `Store`. */
 	distribution?: string;
 };
 
-/** Reply of the `get_views` command (after unwrapping the reply envelope). */
+/** Reply of `get_views` (after unwrapping the envelope). */
 export type GetViewsReply = {
 	/** Loaded aircraft. */
 	metadata?: {
@@ -90,29 +87,29 @@ export type GetViewsReply = {
 		/** Readable aircraft name. */
 		aircraft_readable?: string;
 	};
-	/** Views of the loaded aircraft, plus global world views. */
+	/** Views of the aircraft plus global world views. */
 	views?: CameraView[];
 };
 
 /** Any JSON message exchanged with the bridge. */
 export type BridgeMessage = {
-	/** Message type, e.g. `api_request`, `api_reply`, `cam_mode_set`. */
+	/** Message type. */
 	message: string;
 	/** Correlation identifier of requests and replies. */
 	request_id?: string;
-	/** Command name (requests only). */
+	/** Command name (requests). */
 	command?: string;
-	/** HTTP-like status (replies only). */
+	/** HTTP-like status (replies). */
 	status?: number;
-	/** Error description (failed replies only). */
+	/** Error description (failed replies). */
 	error?: string;
-	/** Message payload. */
+	/** Payload. */
 	payload?: unknown;
 };
 
 /**
- * Display name as ChasePlane shows it. Names are not unique ("Wing" x4): the bridge disambiguates
- * them with side / position suffix flags, and with an ICAO for airport-bound world views.
+ * Display name as ChasePlane shows it: names are not unique ("Wing" x4), so the side / position
+ * suffix flags and the ICAO of airport-bound world views are appended.
  * @param view The camera view.
  * @returns e.g. "Wing (R Fwd)", "Tower LFPG".
  */

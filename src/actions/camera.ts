@@ -14,31 +14,28 @@ import type { JsonObject, JsonValue } from "@elgato/utils";
 import type { ChasePlaneClient } from "../chaseplane/client";
 import { CameraMode, type CameraView, getViewDisplayName } from "../chaseplane/protocol";
 
-/**
- * Settings persisted per key. `name` and `mode` cache the selected view's details so the key renders
- * correctly before the simulator is running.
- */
-type SetCameraSettings = {
-	/** GUID of the selected view (set by the property inspector). */
+/** Settings persisted per key. `name` / `mode` are cached so the key renders before the simulator runs. */
+type CameraSettings = {
+	/** GUID of the selected view (written by the property inspector). */
 	guid?: string;
-	/** Cached display name of the view. */
+	/** Cached display name. */
 	name?: string;
-	/** Cached camera mode of the view. */
+	/** Cached camera mode. */
 	mode?: CameraMode;
 };
 
-/** Messages sent by the property inspector (sdpi-components data source protocol). */
+/** Message sent by the property inspector (sdpi-components data source protocol). */
 type PropertyInspectorMessage = {
 	/** Data source name. */
 	event?: string;
-	/** Whether the user pressed the refresh button. */
+	/** Refresh button pressed. */
 	isRefresh?: boolean;
 };
 
 /** Visual state of a key image. */
 type KeyImageState = "active" | "inactive" | "offline";
 
-/** What was last sent to Stream Deck for a key, to stay well under the recommended update rate. */
+/** Last values sent to Stream Deck for a key (only changes are sent). */
 type RenderedState = {
 	/** Image of the "Inactive" state. */
 	inactiveImage?: string;
@@ -50,20 +47,20 @@ type RenderedState = {
 	title?: string;
 };
 
-/** Data source name used by `<sdpi-select datasource="...">` in ui/set-camera.html. */
+/** Data source name of `<sdpi-select datasource>` in ui/camera.html. */
 const CAMERAS_DATA_SOURCE = "getCameras";
 
 /** Action states, as declared in the manifest. */
 const State = { Inactive: 0, Active: 1 } as const;
 
-/** Base name of the key images generated for each mode (see scripts/key-images.mjs). */
+/** Base name of the key images generated per mode (scripts/key-images.mjs). */
 const MODE_IMAGE_NAME: Record<CameraMode, string> = {
 	[CameraMode.Internal]: "internal",
 	[CameraMode.External]: "external",
 	[CameraMode.World]: "world",
 };
 
-/** Localization keys of the data-source group labels (`Localization` section of en.json / fr.json). */
+/** Localization keys of the group labels (en.json / fr.json). */
 const MODE_LABEL_KEY: Record<CameraMode, string> = {
 	[CameraMode.Internal]: "Internal",
 	[CameraMode.External]: "External",
@@ -71,20 +68,20 @@ const MODE_LABEL_KEY: Record<CameraMode, string> = {
 };
 
 /**
- * Switches ChasePlane to a camera view. One key represents one view; the key is in the "Active" state
- * while that view is the current camera.
+ * Switches ChasePlane to a camera view. One key = one view; the key is "Active" while that view is
+ * the current camera.
  */
-@action({ UUID: "com.stalexcorp.chaseplane.set-camera" })
-export class SetCameraAction extends SingletonAction<SetCameraSettings> {
-	/** Scoped logger. */
-	private readonly logger = streamDeck.logger.createScope("SetCamera");
+@action({ UUID: "fr.stalexcorp.msfschaseplane.camera" })
+export class CameraAction extends SingletonAction<CameraSettings> {
+	/** Logger. */
+	private readonly logger = streamDeck.logger.createScope("Camera");
 	/** Last values sent to Stream Deck, by action identifier. */
 	private readonly renderedById = new Map<string, RenderedState>();
-	/** Settings of the visible keys, by action identifier (event payloads are the reliable source). */
-	private readonly settingsById = new Map<string, SetCameraSettings>();
+	/** Settings of the visible keys, by action identifier. */
+	private readonly settingsById = new Map<string, CameraSettings>();
 
 	/**
-	 * Initializes a new instance of the {@link SetCameraAction} class.
+	 * Initializes a new instance of the {@link CameraAction} class.
 	 * @param client ChasePlane bridge client.
 	 */
 	constructor(private readonly client: ChasePlaneClient) {
@@ -106,13 +103,12 @@ export class SetCameraAction extends SingletonAction<SetCameraSettings> {
 	}
 
 	/** @inheritdoc */
-	public override async onDidReceiveSettings(ev: DidReceiveSettingsEvent<SetCameraSettings>): Promise<void> {
+	public override async onDidReceiveSettings(ev: DidReceiveSettingsEvent<CameraSettings>): Promise<void> {
 		if (!ev.action.isKey()) return;
 
 		let settings = ev.payload.settings;
 		this.settingsById.set(ev.action.id, settings);
 
-		// The property inspector only stores the GUID: cache the view's name and mode alongside it.
 		const view = settings.guid ? this.client.findView(settings.guid) : undefined;
 		if (view) {
 			const cached = this.withViewDetails(settings, view);
@@ -128,7 +124,7 @@ export class SetCameraAction extends SingletonAction<SetCameraSettings> {
 	}
 
 	/** @inheritdoc */
-	public override async onKeyDown(ev: KeyDownEvent<SetCameraSettings>): Promise<void> {
+	public override async onKeyDown(ev: KeyDownEvent<CameraSettings>): Promise<void> {
 		const { guid } = ev.payload.settings;
 		if (!guid) {
 			this.logger.warn("Key pressed but no camera view is selected");
@@ -142,7 +138,7 @@ export class SetCameraAction extends SingletonAction<SetCameraSettings> {
 
 		try {
 			await this.client.setViewByGuid(guid);
-			// The bridge confirms through `cam_mode_set`; reflect the change immediately for a snappy key.
+			// Reflect the change before the bridge confirms it through `cam_mode_set`.
 			this.client.currentCamera = { ...this.client.currentCamera, preset_guid: guid };
 			this.renderAll();
 		} catch (err) {
@@ -153,7 +149,7 @@ export class SetCameraAction extends SingletonAction<SetCameraSettings> {
 
 	/** @inheritdoc */
 	public override async onPropertyInspectorDidAppear(
-		ev: PropertyInspectorDidAppearEvent<SetCameraSettings>,
+		ev: PropertyInspectorDidAppearEvent<CameraSettings>,
 	): Promise<void> {
 		if (this.client.isReady) {
 			await this.client.refreshViews();
@@ -162,7 +158,7 @@ export class SetCameraAction extends SingletonAction<SetCameraSettings> {
 	}
 
 	/** @inheritdoc */
-	public override async onSendToPlugin(ev: SendToPluginEvent<JsonValue, SetCameraSettings>): Promise<void> {
+	public override async onSendToPlugin(ev: SendToPluginEvent<JsonValue, CameraSettings>): Promise<void> {
 		const message = ev.payload as PropertyInspectorMessage;
 		if (message?.event !== CAMERAS_DATA_SOURCE) return;
 
@@ -174,7 +170,7 @@ export class SetCameraAction extends SingletonAction<SetCameraSettings> {
 	}
 
 	/** @inheritdoc */
-	public override onWillAppear(ev: WillAppearEvent<SetCameraSettings>): Promise<void> | void {
+	public override onWillAppear(ev: WillAppearEvent<CameraSettings>): Promise<void> | void {
 		if (!ev.action.isKey()) return;
 
 		this.settingsById.set(ev.action.id, ev.payload.settings);
@@ -183,17 +179,17 @@ export class SetCameraAction extends SingletonAction<SetCameraSettings> {
 	}
 
 	/** @inheritdoc */
-	public override onWillDisappear(ev: WillDisappearEvent<SetCameraSettings>): void {
+	public override onWillDisappear(ev: WillDisappearEvent<CameraSettings>): void {
 		this.settingsById.delete(ev.action.id);
 		this.renderedById.delete(ev.action.id);
 	}
 
 	/**
-	 * Updates the images, state and title of a key. Only changed values are sent to Stream Deck.
+	 * Updates the images, state and title of a key; only changed values are sent.
 	 * @param key The key.
 	 * @param settings The key's settings.
 	 */
-	private async render(key: KeyAction<SetCameraSettings>, settings: SetCameraSettings): Promise<void> {
+	private async render(key: KeyAction<CameraSettings>, settings: CameraSettings): Promise<void> {
 		const view = settings.guid ? this.client.findView(settings.guid) : undefined;
 		const mode = view?.mode ?? settings.mode;
 		const connected = this.client.isReady;
@@ -219,7 +215,7 @@ export class SetCameraAction extends SingletonAction<SetCameraSettings> {
 	}
 
 	/**
-	 * Re-renders every visible key of this action.
+	 * Re-renders every visible key.
 	 */
 	private renderAll(): void {
 		for (const key of this.actions) {
@@ -232,7 +228,7 @@ export class SetCameraAction extends SingletonAction<SetCameraSettings> {
 	}
 
 	/**
-	 * Sends the camera list to the property inspector, grouped by mode (data source format).
+	 * Sends the camera list to the property inspector, grouped by mode.
 	 */
 	private sendCameras(): void {
 		const items = this.client
@@ -248,7 +244,7 @@ export class SetCameraAction extends SingletonAction<SetCameraSettings> {
 
 	/**
 	 * Sends the connection status to the property inspector.
-	 * @param actionId When specified, the status is only sent if the property inspector belongs to this action.
+	 * @param actionId When specified, only if the property inspector belongs to this action.
 	 */
 	private sendStatus(actionId?: string): void {
 		const current = streamDeck.ui.action;
@@ -264,20 +260,19 @@ export class SetCameraAction extends SingletonAction<SetCameraSettings> {
 	}
 
 	/**
-	 * Returns settings enriched with the view's display name and mode, or the same object when unchanged.
+	 * Returns settings enriched with the view's name and mode, or the same object when unchanged.
 	 * @param settings Current settings.
 	 * @param view Selected view.
 	 * @returns Settings to persist.
 	 */
-	private withViewDetails(settings: SetCameraSettings, view: CameraView): SetCameraSettings {
+	private withViewDetails(settings: CameraSettings, view: CameraView): CameraSettings {
 		const name = getViewDisplayName(view);
 		return settings.name === name && settings.mode === view.mode ? settings : { ...settings, name, mode: view.mode };
 	}
 }
 
 /**
- * Wraps a camera name over up to three lines so it fits on a key. Users can still override the title
- * from the Stream Deck app, in which case their title takes precedence.
+ * Wraps a name over up to three lines of ~10 characters. A user-defined title still takes precedence.
  * @param name Camera name.
  * @returns Title text.
  */
@@ -301,11 +296,11 @@ function formatTitle(name: string): string {
 }
 
 /**
- * Gets the path (relative to the plugin root) of a generated key image.
+ * Path (relative to the plugin root) of a generated key image.
  * @param mode Camera mode.
  * @param state Visual state.
  * @returns Image path.
  */
 function keyImage(mode: CameraMode, state: KeyImageState): string {
-	return `imgs/actions/set-camera/keys/${MODE_IMAGE_NAME[mode]}-${state}.svg`;
+	return `imgs/actions/camera/keys/${MODE_IMAGE_NAME[mode]}-${state}.svg`;
 }

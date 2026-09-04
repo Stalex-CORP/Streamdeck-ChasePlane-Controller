@@ -11,44 +11,41 @@ import {
 	type SystemInfo,
 } from "./protocol";
 
-/** Default endpoint of the ChasePlane bridge WebSocket API. */
+/** Default endpoint of the bridge WebSocket API. */
 export const DEFAULT_BRIDGE_URL = "ws://localhost:8652";
 
-/** Delay between reconnection attempts while the simulator / bridge is not running. */
 const RECONNECT_DELAY_MS = 3_000;
-
-/** Requests without a reply after this delay are rejected. */
 const REQUEST_TIMEOUT_MS = 30_000;
 
 /** Minimal logger contract, satisfied by `streamDeck.logger`. */
 export type Logger = {
-	/** Logs a debug message. */
+	/** Debug. */
 	debug(message: string): unknown;
-	/** Logs an informational message. */
+	/** Info. */
 	info(message: string): unknown;
-	/** Logs a warning. */
+	/** Warning. */
 	warn(message: string): unknown;
-	/** Logs an error. */
+	/** Error. */
 	error(message: string): unknown;
 };
 
 /** Events emitted by {@link ChasePlaneClient}. */
 export type ChasePlaneClientEvents = {
-	/** The bridge accepted the handshake; requests can be sent. */
+	/** Handshake done; requests can be sent. */
 	ready: [info: SystemInfo];
-	/** The connection to the bridge was lost. */
+	/** Connection lost. */
 	disconnected: [];
-	/** The list of camera views changed (aircraft loaded, view created / edited / deleted). */
+	/** View list changed (aircraft loaded, view created / edited / deleted). */
 	viewsChanged: [views: CameraView[]];
-	/** The active camera changed. */
+	/** Active camera changed. */
 	cameraChanged: [camera: CurrentCamera];
 };
 
 /** Options of {@link ChasePlaneClient}. */
 export type ChasePlaneClientOptions = {
-	/** Logger used for diagnostics. */
+	/** Logger. */
 	logger: Logger;
-	/** Bridge WebSocket endpoint; defaults to {@link DEFAULT_BRIDGE_URL}. */
+	/** Bridge endpoint; defaults to {@link DEFAULT_BRIDGE_URL}. */
 	url?: string;
 	/** Client name announced to the bridge. */
 	clientName?: string;
@@ -62,66 +59,63 @@ export type ViewsByMode = {
 	views: CameraView[];
 };
 
-/** Subset of the `ws` socket internals used to detach it from the event loop. */
+/** `ws` socket internals needed to detach it from the event loop. */
 type UnrefableSocket = {
 	/** Underlying TCP socket. */
 	_socket?: {
-		/** Lets the process exit even while the socket is open. */
+		/** Lets the process exit while the socket is open. */
 		unref?: () => void;
 	};
 };
 
 /** A request awaiting its reply. */
 type PendingRequest = {
-	/** Command name, for diagnostics. */
+	/** Command name. */
 	command: string;
-	/** Resolves the request with the reply payload. */
+	/** Resolves with the reply payload. */
 	resolve: (value: unknown) => void;
 	/** Rejects the request. */
 	reject: (reason: Error) => void;
-	/** Time the request was sent, for timeouts. */
+	/** Time sent. */
 	timestamp: number;
 };
 
 /**
- * Client for the ChasePlane bridge API (`CP MSFS Bridge.exe`).
+ * Client for the ChasePlane bridge API (`CP MSFS Bridge.exe`): JSON over WebSocket, `api_connect`
+ * handshake, `api_request` / `api_reply` correlated by `request_id`, push events for state changes.
  *
- * Transport is JSON over WebSocket. After `api_connect`, the bridge answers `api_version` then
- * `initialized`; requests use `api_request` / `api_reply` correlated by `request_id`, and state
- * changes are pushed (`cam_mode_set`, `view_created`, ...). Raw `PING` frames are ignored.
- *
- * The client reconnects forever while started, and never keeps the Node.js event loop alive on
- * its own: Stream Deck stops a plugin by closing its connection and waiting for the process to exit.
+ * Reconnects forever while started. Never keeps the event loop alive on its own: Stream Deck stops a
+ * plugin by closing its connection and waiting for the process to exit.
  */
 export class ChasePlaneClient extends EventEmitter<ChasePlaneClientEvents> {
 	/** Readable name of the loaded aircraft. */
 	public aircraft = "";
 	/** Last known active camera. */
 	public currentCamera: CurrentCamera | null = null;
-	/** Whether the handshake completed and the bridge accepts requests. */
+	/** Whether the bridge accepts requests. */
 	public isReady = false;
-	/** Information reported by the bridge on `initialized`. */
+	/** Reported on `initialized`. */
 	public systemInfo: SystemInfo = {};
-	/** Camera views of the loaded aircraft. */
+	/** Views of the loaded aircraft. */
 	public views: CameraView[] = [];
 
 	/** Client name announced to the bridge. */
 	private readonly clientName: string;
-	/** Logger used for diagnostics. */
+	/** Logger. */
 	private readonly logger: Logger;
-	/** Requests awaiting a reply, by request identifier. */
+	/** Requests awaiting a reply. */
 	private readonly pending = new Map<string, PendingRequest>();
-	/** Pending reconnection attempt. */
+	/** Pending reconnection. */
 	private reconnectTimer: NodeJS.Timeout | null = null;
 	/** Pending (debounced) views refresh. */
 	private refreshTimer: NodeJS.Timeout | null = null;
 	/** Whether {@link ChasePlaneClient.start} was called. */
 	private started = false;
-	/** Periodic check rejecting timed-out requests. */
+	/** Periodic request-timeout check. */
 	private timeoutTimer: NodeJS.Timeout | null = null;
-	/** Bridge WebSocket endpoint. */
+	/** Bridge endpoint. */
 	private readonly url: string;
-	/** Current socket, if any. */
+	/** Current socket. */
 	private ws: WebSocket | null = null;
 
 	/**
@@ -136,7 +130,7 @@ export class ChasePlaneClient extends EventEmitter<ChasePlaneClientEvents> {
 	}
 
 	/**
-	 * GUID of the active camera preset, if any.
+	 * GUID of the active view.
 	 * @returns The GUID, or `null`.
 	 */
 	public get activeGuid(): string | null {
@@ -153,7 +147,7 @@ export class ChasePlaneClient extends EventEmitter<ChasePlaneClientEvents> {
 	}
 
 	/**
-	 * Gets the camera views of a mode.
+	 * Gets the views of a mode.
 	 * @param mode Camera mode.
 	 * @returns Views of that mode, in ChasePlane order.
 	 */
@@ -162,7 +156,7 @@ export class ChasePlaneClient extends EventEmitter<ChasePlaneClientEvents> {
 	}
 
 	/**
-	 * Gets the views grouped by mode, in the order ChasePlane displays them.
+	 * Gets the views grouped by mode.
 	 * @returns One entry per mode.
 	 */
 	public getViewsByMode(): ViewsByMode[] {
@@ -170,7 +164,7 @@ export class ChasePlaneClient extends EventEmitter<ChasePlaneClientEvents> {
 	}
 
 	/**
-	 * Re-reads the camera views from the bridge.
+	 * Re-reads the views from the bridge.
 	 * @returns The views.
 	 */
 	public async refreshViews(): Promise<CameraView[]> {
@@ -213,16 +207,16 @@ export class ChasePlaneClient extends EventEmitter<ChasePlaneClientEvents> {
 	}
 
 	/**
-	 * Switches to a camera view.
+	 * Switches to a view.
 	 * @param guid GUID of the view.
-	 * @returns Promise resolved when the bridge acknowledged the request.
+	 * @returns Resolved when the bridge acknowledged the request.
 	 */
 	public setViewByGuid(guid: string): Promise<unknown> {
 		return this.request("set_view_by_guid", { guid });
 	}
 
 	/**
-	 * Starts the client; it reconnects automatically until {@link ChasePlaneClient.stop} is called.
+	 * Starts the client; it reconnects until {@link ChasePlaneClient.stop} is called.
 	 */
 	public start(): void {
 		this.started = true;
@@ -262,7 +256,7 @@ export class ChasePlaneClient extends EventEmitter<ChasePlaneClientEvents> {
 		this.ws = ws;
 
 		ws.on("open", () => {
-			// The socket must not keep the process alive once Stream Deck disconnects.
+			// Must not keep the process alive once Stream Deck disconnects.
 			(ws as unknown as UnrefableSocket)._socket?.unref?.();
 			this.send({ message: "api_connect", payload: { client_name: this.clientName } });
 			this.startTimeoutCheck();
@@ -356,7 +350,7 @@ export class ChasePlaneClient extends EventEmitter<ChasePlaneClientEvents> {
 			return;
 		}
 
-		// Replies wrap their payload in nested { message, payload } envelopes; unwrap like the official client.
+		// Replies nest their payload in { message, payload } envelopes; unwrap like the official client.
 		let payload = msg.payload;
 		for (let i = 0; i < 4; i++) {
 			if (!payload || typeof payload !== "object" || !("payload" in payload)) break;
@@ -382,7 +376,7 @@ export class ChasePlaneClient extends EventEmitter<ChasePlaneClientEvents> {
 	}
 
 	/**
-	 * Schedules a (debounced) views refresh.
+	 * Schedules a debounced views refresh.
 	 */
 	private scheduleRefresh(): void {
 		if (this.refreshTimer) clearTimeout(this.refreshTimer);

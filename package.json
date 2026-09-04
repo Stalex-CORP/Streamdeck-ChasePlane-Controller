@@ -1,16 +1,16 @@
 {
-    "name": "streamdeck-cp",
-    "version": "0.2.0",
+    "name": "streamdeck-msfschaseplane",
+    "version": "1.0.0",
     "private": true,
     "description": "Stream Deck plugin for ChasePlane (MSFS 2024): switch cameras from your deck",
     "type": "module",
     "scripts": {
         "build": "rollup -c",
-        "watch": "rollup -c -w --watch.onEnd=\"streamdeck restart com.stalexcorp.chaseplane\"",
+        "watch": "rollup -c -w --watch.onEnd=\"streamdeck restart fr.stalexcorp.msfschaseplane\"",
         "lint": "eslint --max-warnings 0",
         "format": "prettier --write .",
-        "validate": "streamdeck validate com.stalexcorp.chaseplane.sdPlugin",
-        "pack": "streamdeck pack com.stalexcorp.chaseplane.sdPlugin --output dist",
+        "validate": "streamdeck validate fr.stalexcorp.msfschaseplane.sdPlugin",
+        "pack": "streamdeck pack fr.stalexcorp.msfschaseplane.sdPlugin --output dist",
         "probe": "node scripts/probe.mjs"
     },
     "prettier": "@elgato/prettier-config",

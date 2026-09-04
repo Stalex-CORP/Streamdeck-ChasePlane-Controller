@@ -1,11 +1,10 @@
 <!doctype html>
 <html>
 	<head lang="en">
-		<title>Set Camera Settings</title>
+		<title>Camera</title>
 		<meta charset="utf-8" />
 		<script src="sdpi-components.js"></script>
 		<script>
-			// Property inspector localization (sdpi-components): labels use __MSG_key__.
 			SDPIComponents.i18n.locales = {
 				en: {
 					camera: "Camera",
@@ -77,7 +76,6 @@
 		</sdpi-item>
 
 		<script>
-			// Connection status pushed by the plugin ({ event: "status", connected, aircraft, isActive }).
 			const { streamDeckClient, i18n } = SDPIComponents;
 			const status = document.getElementById("status");
 			const text = document.getElementById("status-text");

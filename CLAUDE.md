@@ -1,6 +1,6 @@
 # streamdeck-cp — context for Claude Code
 
-Stream Deck plugin **"ChasePlane Cameras"** (`com.stalexcorp.chaseplane`): switches ChasePlane (MSFS 2024)
+Stream Deck plugin **"ChasePlane"** (`fr.stalexcorp.msfschaseplane`): switches ChasePlane (MSFS 2024)
 camera views from a Stream Deck. One key = one view; keys are grouped Internal / External / World in the
 property inspector; the active view's key is highlighted. Goal: fully compliant with Elgato's SDK guides
 and Marketplace guidelines so it can be published later. Author: Steve (Stalex). Language: talk to the
@@ -18,12 +18,12 @@ user in French, keep code/comments/docs in English.
 ## Layout
 
 ```
-com.stalexcorp.chaseplane.sdPlugin/   the packaged plugin — manifest.json (SDK 3, Node 24, SD 7.1+),
-                                      en.json / fr.json (i18n), ui/set-camera.html (sdpi-components v4,
+fr.stalexcorp.msfschaseplane.sdPlugin/   the packaged plugin — manifest.json (SDK 3, Node 24, SD 7.1+),
+                                      en.json / fr.json (i18n), ui/camera.html (sdpi-components v4,
                                       vendored in ui/sdpi-components.js), imgs/ (manifest icons)
-  bin/, logs/, imgs/actions/set-camera/keys/   generated / runtime — git-ignored, never edit by hand
+  bin/, logs/, imgs/actions/camera/keys/   generated / runtime — git-ignored, never edit by hand
 src/plugin.ts                         entry: register actions BEFORE streamDeck.connect(); exits on SIGTERM
-src/actions/set-camera.ts             the only action (two manifest states: 0 Inactive, 1 Active)
+src/actions/camera.ts             the only action (two manifest states: 0 Inactive, 1 Active)
 src/chaseplane/client.ts              bridge client: reconnect loop, request/reply, push events
 src/chaseplane/protocol.ts            protocol types + getViewDisplayName()
 src/images/{internal,external,world}.png   user-provided white 64x64 icons (source of the key images)
@@ -34,11 +34,11 @@ docs/chaseplane-bridge-api.md         reverse-engineered API reference, confirme
 
 ## Commands
 
-- `npm run build` / `npm run watch` (rebuild + `streamdeck restart com.stalexcorp.chaseplane`).
+- `npm run build` / `npm run watch` (rebuild + `streamdeck restart fr.stalexcorp.msfschaseplane`).
 - `npm run lint` (`@elgato/eslint-config`, `--max-warnings 0`), `npm run format` (`@elgato/prettier-config`:
   tabs in TS/JS, 4 spaces in JSON, 120 cols). Run both before finishing any change.
 - `npm run validate` (`streamdeck validate`), `npm run pack` (→ `dist/*.streamDeckPlugin`).
-- Logs: `com.stalexcorp.chaseplane.sdPlugin/logs/com.stalexcorp.chaseplane.0.log` (0 = newest, one file per
+- Logs: `fr.stalexcorp.msfschaseplane.sdPlugin/logs/fr.stalexcorp.msfschaseplane.0.log` (0 = newest, one file per
   plugin start — a new file appearing is the proof a restart really happened).
 - Property inspector debugging: http://localhost:23654/ (PI must be open in the Stream Deck app).
 
@@ -87,7 +87,7 @@ docs/chaseplane-bridge-api.md         reverse-engineered API reference, confirme
 ## Testing without hardware
 
 `.test-plugin.mjs`-style harness (not committed): spawn `bin/plugin.js` with
-`-port <p> -pluginUUID com.stalexcorp.chaseplane -registerEvent registerPlugin -info <json with devices[]>`,
+`-port <p> -pluginUUID fr.stalexcorp.msfschaseplane -registerEvent registerPlugin -info <json with devices[]>`,
 run a `ws` server as fake Stream Deck (send `willAppear`, `keyDown`, `didReceiveSettings`, `sendToPlugin`)
 and another on 8652 as fake bridge replaying the message shapes from docs/chaseplane-bridge-api.md.
 The `-info` JSON must list the device used by `willAppear` or the SDK throws "device not found".

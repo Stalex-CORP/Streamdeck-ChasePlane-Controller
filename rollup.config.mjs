@@ -8,7 +8,7 @@ import url from "node:url";
 import { generateKeyImages } from "./scripts/key-images.mjs";
 
 const isWatching = !!process.env.ROLLUP_WATCH;
-const sdPlugin = "com.stalexcorp.chaseplane.sdPlugin";
+const sdPlugin = "fr.stalexcorp.msfschaseplane.sdPlugin";
 
 /**
  * @type {import('rollup').RollupOptions}
@@ -30,12 +30,11 @@ const config = {
 			},
 		},
 		{
-			// Generates imgs/actions/set-camera/keys/*.svg from src/images/*.png (see scripts/key-images.mjs).
 			name: "key-images",
 			buildStart: function () {
 				const sources = generateKeyImages(
 					path.resolve("src/images"),
-					path.resolve(sdPlugin, "imgs/actions/set-camera/keys"),
+					path.resolve(sdPlugin, "imgs/actions/camera/keys"),
 				);
 				sources.forEach((file) => this.addWatchFile(file));
 			},

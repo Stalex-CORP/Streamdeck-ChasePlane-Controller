@@ -4,7 +4,7 @@ node_modules/
 # Stream Deck files
 *.sdPlugin/bin
 *.sdPlugin/logs
-*.sdPlugin/imgs/actions/set-camera/keys
+*.sdPlugin/imgs/actions/camera/keys
 
 # Packaged plugin
 dist/
