@@ -7,6 +7,7 @@
 		<script>
 			SDPIComponents.i18n.locales = {
 				en: {
+					mode: "Mode",
 					camera: "Camera",
 					status: "ChasePlane",
 					loading: "Loading views…",
@@ -14,9 +15,10 @@
 					connected: "Connected",
 					disconnected: "Not connected — start MSFS 2024 with ChasePlane",
 					active: "This view is currently active",
-					help: "Views are listed per aircraft, grouped as in ChasePlane (Internal / External / World).",
+					help: "Views are listed per aircraft, for the selected mode.",
 				},
 				fr: {
+					mode: "Mode",
 					camera: "Caméra",
 					status: "ChasePlane",
 					loading: "Chargement des vues…",
@@ -24,7 +26,7 @@
 					connected: "Connecté",
 					disconnected: "Non connecté — lancez MSFS 2024 avec ChasePlane",
 					active: "Cette vue est actuellement active",
-					help: "Les vues sont listées par avion, groupées comme dans ChasePlane (Interne / Externe / Monde).",
+					help: "Les vues sont listées par avion, pour le mode sélectionné.",
 				},
 			};
 		</script>
@@ -52,6 +54,10 @@
 	</head>
 
 	<body>
+		<sdpi-item label="__MSG_mode__">
+			<sdpi-radio setting="mode" value-type="number" default="0" columns="3" datasource="getModes"></sdpi-radio>
+		</sdpi-item>
+
 		<sdpi-item label="__MSG_camera__">
 			<sdpi-select
 				setting="guid"

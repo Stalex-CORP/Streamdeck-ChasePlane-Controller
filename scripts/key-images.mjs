@@ -1,7 +1,8 @@
 /**
- * Generates the runtime key images of the "Camera" action: for each src/images/<mode>.png, three SVGs
- * (<mode>-inactive / -active / -offline) in <plugin>/imgs/actions/camera/keys/. Shipped with the plugin
- * and set by path, so Stream Deck caches them. Run by rollup or standalone: `node scripts/key-images.mjs`.
+ * Generates the key images of the "Camera" action in <plugin>/imgs/actions/camera/keys/: for each
+ * src/images/<mode>.png, <mode>-inactive / -active / -offline (set by path at runtime), plus the manifest
+ * state images default-inactive / default-active built from the ChasePlane glyph (imgs/plugin/category-icon@2x.png,
+ * shown while no view is selected). Run by rollup or standalone: `node scripts/key-images.mjs`.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -13,26 +14,37 @@ export const MODES = /** @type {const} */ ([
 ]);
 
 const BACKGROUND = "#1f2126";
+const DEFAULT_COLOR = "#9ca3af";
 const OFFLINE = "#4b5563";
+
+/** Red badge with a crossed-out wifi glyph (connection lost), top-right corner. */
+const OFFLINE_BADGE =
+	`<g transform="translate(61 14)">` +
+	`<circle r="6" fill="#ef4444"/>` +
+	`<g fill="none" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round">` +
+	`<path d="M-4.2 -0.6A5.9 5.9 0 0 1 4.2 -0.6"/>` +
+	`<path d="M-2.5 1.2A3.5 3.5 0 0 1 2.5 1.2"/>` +
+	`</g>` +
+	`<circle cy="3.2" r="0.9" fill="#ffffff"/>` +
+	`<path d="M-3.6 -3.6L3.6 3.6" stroke="#ef4444" stroke-width="2.4" stroke-linecap="round"/>` +
+	`<path d="M-3.6 -3.6L3.6 3.6" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round"/>` +
+	`</g>`;
 
 /**
  * Builds one key image.
- * @param {{ icon: string, color: string, state: "inactive" | "active" | "offline" }} o Image options.
+ * @param {{ icon: string, color: string, state: "inactive" | "active" | "offline", size?: number }} o Image options
+ * (`size`: icon box in viewBox units, centered on the 44x44 area used by the mode icons).
  * @returns {string} SVG markup (72x72 viewBox, rendered at 144x144).
  */
-export function buildKeySvg({ icon, color, state }) {
+export function buildKeySvg({ icon, color, state, size = 44 }) {
 	const active = state === "active";
 	const offline = state === "offline";
+	const offset = (44 - size) / 2;
 	const parts = [
-		`<rect width="72" height="72" rx="8" fill="${active ? color : BACKGROUND}"/>`,
-		active ? "" : `<rect x="0" y="0" width="72" height="5" fill="${offline ? OFFLINE : color}"/>`,
-		`<image href="${icon}" x="16" y="9" width="40" height="40" opacity="${offline ? 0.35 : 1}" preserveAspectRatio="xMidYMid meet"/>`,
-		active
-			? `<rect x="3.5" y="3.5" width="65" height="65" rx="10" fill="none" stroke="#ffffff" stroke-width="3" opacity="0.9"/>`
-			: "",
-		offline
-			? `<circle cx="62" cy="14" r="5" fill="#ef4444"/><path d="M59 11l6 6M65 11l-6 6" stroke="#ffffff" stroke-width="1.6"/>`
-			: "",
+		`<rect width="72" height="72"/>`,
+		`<rect x="0" y="0" width="72" height="5" fill="${color}" fill-opacity="${active ? 1 : 0}"/>`,
+		`<image href="${icon}" x="${13.5 + offset}" y="${8 + offset}" width="${size}" height="${size}" opacity="${offline ? 0.5 : 1}" preserveAspectRatio="xMidYMid meet"/>`,
+		offline ? OFFLINE_BADGE : "",
 	];
 
 	return (
@@ -52,21 +64,38 @@ export function generateKeyImages(srcDir, outDir) {
 	fs.mkdirSync(outDir, { recursive: true });
 	const sources = [];
 
+	const glyph = path.join(outDir, "..", "..", "..", "plugin", "category-icon@2x.png");
+	sources.push(glyph);
+	const glyphIcon = `data:image/png;base64,${fs.readFileSync(glyph).toString("base64")}`;
+	for (const state of ["inactive", "active"]) {
+		writeIfChanged(
+			path.join(outDir, `default-${state}.svg`),
+			buildKeySvg({ icon: glyphIcon, color: DEFAULT_COLOR, state, size: 34 }),
+		);
+	}
+
 	for (const { name, color } of MODES) {
 		const src = path.join(srcDir, `${name}.png`);
 		sources.push(src);
 		const icon = `data:image/png;base64,${fs.readFileSync(src).toString("base64")}`;
 
 		for (const state of ["inactive", "active", "offline"]) {
-			const svg = buildKeySvg({ icon, color, state });
-			const file = path.join(outDir, `${name}-${state}.svg`);
-			if (!fs.existsSync(file) || fs.readFileSync(file, "utf8") !== svg) {
-				writeFileForce(file, svg);
-			}
+			writeIfChanged(path.join(outDir, `${name}-${state}.svg`), buildKeySvg({ icon, color, state }));
 		}
 	}
 
 	return sources;
+}
+
+/**
+ * Writes a file when its content changed.
+ * @param {string} file Destination.
+ * @param {string} content Content.
+ */
+function writeIfChanged(file, content) {
+	if (!fs.existsSync(file) || fs.readFileSync(file, "utf8") !== content) {
+		writeFileForce(file, content);
+	}
 }
 
 /**

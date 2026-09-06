@@ -23,8 +23,8 @@ fr.stalexcorp.msfschaseplane.sdPlugin/   the plugin (what gets packaged)
   en.json, fr.json                    localization (plugin / action names, group labels)
   ui/camera.html                  property inspector (sdpi-components v4, vendored)
   imgs/plugin/                        Marketplace icon (256/512) and category icon (28/56, white)
-  imgs/actions/camera/            action icon (20/40, white), default state images (72/144)
-  imgs/actions/camera/keys/       key images per mode/state, generated at build (git-ignored)
+  imgs/actions/camera/            action icon (20/40, white)
+  imgs/actions/camera/keys/       key images per mode/state + manifest default states, generated at build (git-ignored)
   bin/plugin.js                       bundle, generated at build (git-ignored)
 src/
   plugin.ts                           entry point: registers the action, connects, starts the client

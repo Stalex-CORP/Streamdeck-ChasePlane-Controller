@@ -173,10 +173,13 @@ export class ChasePlaneClient extends EventEmitter<ChasePlaneClientEvents> {
 			if (reply && Array.isArray(reply.views)) {
 				this.views = reply.views;
 				this.aircraft = reply.metadata?.aircraft_readable ?? reply.metadata?.aircraft_folder ?? "";
+				this.logger.info(`Loaded ${this.views.length} views (${this.aircraft || "no aircraft"})`);
 				this.emit("viewsChanged", this.views);
 			}
 		} catch (err) {
 			this.logger.warn(`get_views failed: ${(err as Error).message}`);
+			// The bridge answers 503 "DLL not connected yet" while the flight loads.
+			if (this.isReady) this.scheduleRefresh(RECONNECT_DELAY_MS);
 		}
 
 		return this.views;
@@ -377,13 +380,14 @@ export class ChasePlaneClient extends EventEmitter<ChasePlaneClientEvents> {
 
 	/**
 	 * Schedules a debounced views refresh.
+	 * @param delayMs Delay before the refresh.
 	 */
-	private scheduleRefresh(): void {
+	private scheduleRefresh(delayMs = 250): void {
 		if (this.refreshTimer) clearTimeout(this.refreshTimer);
 		this.refreshTimer = setTimeout(() => {
 			this.refreshTimer = null;
 			void this.refreshViews();
-		}, 250).unref();
+		}, delayMs).unref();
 	}
 
 	/**

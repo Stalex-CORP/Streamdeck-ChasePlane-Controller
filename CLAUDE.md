@@ -27,7 +27,7 @@ src/actions/camera.ts             the only action (two manifest states: 0 Inacti
 src/chaseplane/client.ts              bridge client: reconnect loop, request/reply, push events
 src/chaseplane/protocol.ts            protocol types + getViewDisplayName()
 src/images/{internal,external,world}.png   user-provided white 64x64 icons (source of the key images)
-scripts/key-images.mjs                builds keys/*.svg from src/images at every rollup build
+scripts/key-images.mjs                builds keys/*.svg (modes from src/images, default states from the ChasePlane category icon) at every rollup build
 scripts/probe.mjs                     `npm run probe [-- <guid>|--watch]` — raw bridge API probe
 docs/chaseplane-bridge-api.md         reverse-engineered API reference, confirmed with live captures
 ```

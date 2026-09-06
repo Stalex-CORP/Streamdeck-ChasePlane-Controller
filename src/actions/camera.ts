@@ -12,16 +12,16 @@ import streamDeck, {
 import type { JsonObject, JsonValue } from "@elgato/utils";
 
 import type { ChasePlaneClient } from "../chaseplane/client";
-import { CameraMode, type CameraView, getViewDisplayName } from "../chaseplane/protocol";
+import { CAMERA_MODES, CameraMode, getViewDisplayName } from "../chaseplane/protocol";
 
-/** Settings persisted per key. `name` / `mode` are cached so the key renders before the simulator runs. */
+/** Settings persisted per key. `name` is cached so the key renders before the simulator runs. */
 type CameraSettings = {
+	/** Camera mode chosen in the property inspector; the view list is filtered on it. */
+	mode?: CameraMode;
 	/** GUID of the selected view (written by the property inspector). */
 	guid?: string;
 	/** Cached display name. */
 	name?: string;
-	/** Cached camera mode. */
-	mode?: CameraMode;
 };
 
 /** Message sent by the property inspector (sdpi-components data source protocol). */
@@ -47,7 +47,8 @@ type RenderedState = {
 	title?: string;
 };
 
-/** Data source name of `<sdpi-select datasource>` in ui/camera.html. */
+/** Data source names of `<sdpi-radio>` / `<sdpi-select>` in ui/camera.html. */
+const MODES_DATA_SOURCE = "getModes";
 const CAMERAS_DATA_SOURCE = "getCameras";
 
 /** Action states, as declared in the manifest. */
@@ -109,17 +110,15 @@ export class CameraAction extends SingletonAction<CameraSettings> {
 		let settings = ev.payload.settings;
 		this.settingsById.set(ev.action.id, settings);
 
-		const view = settings.guid ? this.client.findView(settings.guid) : undefined;
-		if (view) {
-			const cached = this.withViewDetails(settings, view);
-			if (cached !== settings) {
-				settings = cached;
-				this.settingsById.set(ev.action.id, settings);
-				await ev.action.setSettings(settings);
-			}
+		const reconciled = this.reconcile(settings);
+		if (reconciled !== settings) {
+			settings = reconciled;
+			this.settingsById.set(ev.action.id, settings);
+			await ev.action.setSettings(settings);
 		}
 
 		await this.render(ev.action, settings);
+		this.sendCameras(ev.action.id);
 		this.sendStatus();
 	}
 
@@ -160,13 +159,18 @@ export class CameraAction extends SingletonAction<CameraSettings> {
 	/** @inheritdoc */
 	public override async onSendToPlugin(ev: SendToPluginEvent<JsonValue, CameraSettings>): Promise<void> {
 		const message = ev.payload as PropertyInspectorMessage;
-		if (message?.event !== CAMERAS_DATA_SOURCE) return;
-
-		if (message.isRefresh && this.client.isReady) {
-			await this.client.refreshViews();
+		switch (message?.event) {
+			case MODES_DATA_SOURCE:
+				this.sendModes();
+				break;
+			case CAMERAS_DATA_SOURCE:
+				if (message.isRefresh && this.client.isReady) {
+					await this.client.refreshViews();
+				}
+				this.sendCameras(ev.action.id);
+				this.sendStatus(ev.action.id);
+				break;
 		}
-		this.sendCameras();
-		this.sendStatus(ev.action.id);
 	}
 
 	/** @inheritdoc */
@@ -185,13 +189,29 @@ export class CameraAction extends SingletonAction<CameraSettings> {
 	}
 
 	/**
+	 * Reconciles settings: the selected view must belong to the chosen mode, and its name is cached.
+	 * @param settings Current settings.
+	 * @returns Settings to persist, or the same object when unchanged.
+	 */
+	private reconcile(settings: CameraSettings): CameraSettings {
+		const view = settings.guid ? this.client.findView(settings.guid) : undefined;
+		if (!view) return settings;
+
+		const mode = settings.mode ?? view.mode;
+		if (view.mode !== mode) return { ...settings, mode, guid: undefined, name: undefined };
+
+		const name = getViewDisplayName(view);
+		return settings.mode === mode && settings.name === name ? settings : { ...settings, mode, name };
+	}
+
+	/**
 	 * Updates the images, state and title of a key; only changed values are sent.
 	 * @param key The key.
 	 * @param settings The key's settings.
 	 */
 	private async render(key: KeyAction<CameraSettings>, settings: CameraSettings): Promise<void> {
 		const view = settings.guid ? this.client.findView(settings.guid) : undefined;
-		const mode = view?.mode ?? settings.mode;
+		const mode = settings.mode ?? view?.mode;
 		const connected = this.client.isReady;
 		const active = connected && !!settings.guid && this.client.activeGuid === settings.guid;
 
@@ -228,18 +248,25 @@ export class CameraAction extends SingletonAction<CameraSettings> {
 	}
 
 	/**
-	 * Sends the camera list to the property inspector, grouped by mode.
+	 * Sends the views of the current action's mode to the property inspector.
+	 * @param actionId When specified, only if the property inspector belongs to this action.
 	 */
-	private sendCameras(): void {
-		const items = this.client
-			.getViewsByMode()
-			.filter(({ views }) => views.length > 0)
-			.map(({ mode, views }) => ({
-				label: streamDeck.i18n.translate(MODE_LABEL_KEY[mode]),
-				children: views.map((view) => ({ label: getViewDisplayName(view), value: view.guid })),
-			}));
+	private sendCameras(actionId?: string): void {
+		const current = streamDeck.ui.action;
+		if (!current || (actionId !== undefined && current.id !== actionId)) return;
+
+		const mode = this.settingsById.get(current.id)?.mode ?? CameraMode.Internal;
+		const items = this.client.getViews(mode).map((view) => ({ label: getViewDisplayName(view), value: view.guid }));
 
 		void streamDeck.ui.sendToPropertyInspector({ event: CAMERAS_DATA_SOURCE, items });
+	}
+
+	/**
+	 * Sends the camera modes to the property inspector.
+	 */
+	private sendModes(): void {
+		const items = CAMERA_MODES.map((mode) => ({ label: streamDeck.i18n.translate(MODE_LABEL_KEY[mode]), value: mode }));
+		void streamDeck.ui.sendToPropertyInspector({ event: MODES_DATA_SOURCE, items });
 	}
 
 	/**
@@ -257,17 +284,6 @@ export class CameraAction extends SingletonAction<CameraSettings> {
 			aircraft: this.client.aircraft,
 			isActive: !!settings?.guid && this.client.activeGuid === settings.guid,
 		} satisfies JsonObject);
-	}
-
-	/**
-	 * Returns settings enriched with the view's name and mode, or the same object when unchanged.
-	 * @param settings Current settings.
-	 * @param view Selected view.
-	 * @returns Settings to persist.
-	 */
-	private withViewDetails(settings: CameraSettings, view: CameraView): CameraSettings {
-		const name = getViewDisplayName(view);
-		return settings.name === name && settings.mode === view.mode ? settings : { ...settings, name, mode: view.mode };
 	}
 }
 

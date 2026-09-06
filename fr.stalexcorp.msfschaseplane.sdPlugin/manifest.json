@@ -40,13 +40,13 @@
             "States": [
                 {
                     "Name": "Inactive",
-                    "Image": "imgs/actions/camera/key",
+                    "Image": "imgs/actions/camera/keys/default-inactive",
                     "TitleAlignment": "bottom",
                     "FontSize": 9
                 },
                 {
                     "Name": "Active",
-                    "Image": "imgs/actions/camera/key-active",
+                    "Image": "imgs/actions/camera/keys/default-active",
                     "TitleAlignment": "bottom",
                     "FontSize": 9
                 }
