@@ -38,7 +38,9 @@ docs/chaseplane-bridge-api.md         reverse-engineered API reference, confirme
 - `npm run build` / `npm run watch` (rebuild + `streamdeck restart fr.stalexcorp.msfschaseplane`).
 - `npm run lint` (`@elgato/eslint-config`, `--max-warnings 0`), `npm run format` (`@elgato/prettier-config`:
   tabs in TS/JS, 4 spaces in JSON, 120 cols). Run both before finishing any change.
-- `npm run validate` (`streamdeck validate`), `npm run pack` (→ `dist/*.streamDeckPlugin`).
+- `npm run validate` (`streamdeck validate`), `npm run pack` (→ `dist/*.streamDeckPlugin`, ~105 KB).
+- `Nodejs.Debug` is deliberately absent from the manifest (release setting); add `"Debug": "enabled"` locally
+  when the inspector on http://localhost:<port> is needed, never commit it.
 - Logs: `fr.stalexcorp.msfschaseplane.sdPlugin/logs/fr.stalexcorp.msfschaseplane.0.log` (0 = newest, one file per
   plugin start — a new file appearing is the proof a restart really happened).
 - Property inspector debugging: http://localhost:23654/ (PI must be open in the Stream Deck app).
@@ -58,8 +60,9 @@ docs/chaseplane-bridge-api.md         reverse-engineered API reference, confirme
   no donation/copyright links. Extra `{event:"status", connected, aircraft, isActive}` for the status line.
 - i18n: manifest strings + `Localization` keys in `en.json`/`fr.json` (`streamDeck.i18n.translate`);
   PI strings via `SDPIComponents.i18n.locales` + `__MSG_key__` / `<sdpi-i18n key>`.
-- Images: Marketplace icon 256/512 PNG; category + action icons white monochrome on transparent (28/56,
-  20/40); state images 72/144; always ship `@2x`. Never read/modify files under the plugin at runtime.
+- Images: Marketplace icon 256/512 PNG; category + action icons white monochrome SVG on transparent (PNG
+  would need 28/56, 20/40 + `@2x`); state images 72/144 SVG generated at build. Never read/modify files under
+  the plugin at runtime.
 - Logging: `streamDeck.logger` scopes only, no `console`. Default level (debug in dev, info in prod).
 
 ## Hard-won gotchas

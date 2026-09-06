@@ -22,8 +22,8 @@ fr.stalexcorp.msfschaseplane.sdPlugin/   the plugin (what gets packaged)
   manifest.json                       SDK 3 manifest
   en.json, fr.json                    localization (plugin / action names, group labels)
   ui/camera.html                  property inspector (sdpi-components v4, vendored)
-  imgs/plugin/                        Marketplace icon (256/512) and category icon (28/56, white)
-  imgs/actions/camera/            action icon (20/40, white)
+  imgs/plugin/                        Marketplace icon (256/512 PNG) and category icon (SVG, white)
+  imgs/actions/<action>/          action icon (SVG, white)
   imgs/actions/camera/keys/       key images per mode/state + manifest default states, generated at build (git-ignored)
   bin/plugin.js                       bundle, generated at build (git-ignored)
 src/
@@ -55,8 +55,22 @@ npm run watch              # rebuild + restart the plugin on every change
 
 ## Publishing checklist (Marketplace)
 
-- [ ] `Author`, `URL` and `SupportURL` in `manifest.json` point to your Marketplace organization / real pages.
-- [ ] Plugin and category name: "ChasePlane" is a Parallel 42 trademark — confirm naming with them or use a
-      neutral name (UUIDs never change after publishing, names can).
-- [ ] `npm run validate` passes with no warnings, `npm run pack` produces the bundle.
-- [ ] Gallery images and description prepared for the Maker Console.
+Plugin side (verified against Elgato's plugin guidelines, 2026-09-06):
+
+- [x] UUIDs in reverse-DNS with author + plugin name; action UUIDs prefixed with the plugin UUID.
+- [x] Category = plugin name; action names ≤ 30 chars with tooltips; 2–30 configurable actions.
+- [x] Marketplace icon 256/512 PNG; category and action icons white monochrome SVG on transparent.
+- [x] State images 72/144 (SVG); `showAlert()` on failure; no `showOk()`; ≤ 10 key updates/s.
+- [x] Property inspectors: auto-save, no Save button, no donation / copyright links, components hidden until ready.
+- [x] `Nodejs.Debug` removed; bundle minified without source maps; `logs/` excluded by `.sdignore`.
+- [x] `npm run validate` passes (only warning: `URL` 404 until the repository exists); `npm run pack` → ~105 KB bundle.
+- [ ] `Author` must be the Marketplace organization name; `URL` / `SupportURL` must resolve (create the GitHub repo or change them).
+- [ ] Plugin name: "ChasePlane" is a Parallel 42 trademark — get their agreement or use a neutral name (UUIDs never change, names can).
+- [ ] Optional per guidelines: a support link inside the property inspectors ("provide setup help with support page links").
+
+Maker Console side:
+
+- [ ] App icon 288 × 288 PNG (product name / logo as focus).
+- [ ] 1 thumbnail + 3 to 10 gallery images, 1920 × 960 PNG (or MP4 1920 × 1080); real Stream Deck depictions.
+- [ ] Description in English, 250–1500 characters, 2–4 sentences, mentioning MSFS 2024 + ChasePlane as requirements.
+- [ ] Review takes 4–10 working days; a demo video may be requested since the plugin depends on third-party software.

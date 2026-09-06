@@ -1,7 +1,7 @@
 /**
  * Generates the key images in <plugin>/imgs/actions/camera/keys/: for each src/images/<mode>.png and each
  * toggle glyph src/images/<toggle>.svg, <name>-inactive / -active / -offline (set by path at runtime), plus the manifest
- * state images default-inactive / default-active built from the ChasePlane glyph (imgs/plugin/category-icon@2x.png,
+ * state images default-inactive / default-active built from the ChasePlane glyph (imgs/plugin/category-icon.svg,
  * shown while no view is selected). Run by rollup or standalone: `node scripts/key-images.mjs`.
  */
 import fs from "node:fs";
@@ -70,9 +70,9 @@ export function generateKeyImages(srcDir, outDir) {
 	fs.mkdirSync(outDir, { recursive: true });
 	const sources = [];
 
-	const glyph = path.join(outDir, "..", "..", "..", "plugin", "category-icon@2x.png");
+	const glyph = path.join(outDir, "..", "..", "..", "plugin", "category-icon.svg");
 	sources.push(glyph);
-	const glyphIcon = `data:image/png;base64,${fs.readFileSync(glyph).toString("base64")}`;
+	const glyphIcon = `data:image/svg+xml;base64,${fs.readFileSync(glyph).toString("base64")}`;
 	for (const state of ["inactive", "active"]) {
 		writeIfChanged(
 			path.join(outDir, `default-${state}.svg`),
