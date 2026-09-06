@@ -2,6 +2,7 @@ import streamDeck, {
 	action,
 	type KeyAction,
 	type KeyDownEvent,
+	type PropertyInspectorDidAppearEvent,
 	SingletonAction,
 	type WillAppearEvent,
 	type WillDisappearEvent,
@@ -47,6 +48,9 @@ abstract class ToggleAction extends SingletonAction<JsonObject> {
 		for (const event of ["ready", "disconnected", "cameraChanged", "flashlightChanged"] as const) {
 			client.on(event, () => this.renderAll());
 		}
+		client.on("ready", () => this.sendStatus());
+		client.on("disconnected", () => this.sendStatus());
+		client.on("viewsChanged", () => this.sendStatus());
 	}
 
 	/**
@@ -69,6 +73,11 @@ abstract class ToggleAction extends SingletonAction<JsonObject> {
 			this.logger.error(`Toggle failed: ${(err as Error).message}`);
 			await ev.action.showAlert();
 		}
+	}
+
+	/** @inheritdoc */
+	public override onPropertyInspectorDidAppear(ev: PropertyInspectorDidAppearEvent<JsonObject>): void {
+		this.sendStatus(ev.action.id);
 	}
 
 	/** @inheritdoc */
@@ -127,6 +136,22 @@ abstract class ToggleAction extends SingletonAction<JsonObject> {
 		for (const key of this.actions) {
 			if (key.isKey()) void this.render(key);
 		}
+	}
+
+	/**
+	 * Sends the connection status to the property inspector of one of this action's keys.
+	 * @param actionId When specified, only if the property inspector belongs to this action.
+	 */
+	private sendStatus(actionId?: string): void {
+		const current = streamDeck.ui.action;
+		if (!current || (actionId !== undefined && current.id !== actionId)) return;
+		if (![...this.actions].some((key) => key.id === current.id)) return;
+
+		void streamDeck.ui.sendToPropertyInspector({
+			event: "status",
+			connected: this.client.isReady,
+			aircraft: this.client.aircraft,
+		} satisfies JsonObject);
 	}
 }
 

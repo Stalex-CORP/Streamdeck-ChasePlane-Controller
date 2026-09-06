@@ -74,7 +74,8 @@
                     "Name": "On",
                     "Image": "imgs/actions/camera/keys/cinematic-active"
                 }
-            ]
+            ],
+            "PropertyInspectorPath": "ui/toggle.html"
         },
         {
             "Name": "Flashlight",
@@ -94,7 +95,8 @@
                     "Name": "On",
                     "Image": "imgs/actions/camera/keys/flashlight-active"
                 }
-            ]
+            ],
+            "PropertyInspectorPath": "ui/toggle.html"
         }
     ]
 }
