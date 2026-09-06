@@ -4,7 +4,38 @@
     "fr.stalexcorp.msfschaseplane.camera": {
         "Name": "Camera",
         "Tooltip": "Switch to a ChasePlane camera view. The key is highlighted while the view is active.",
-        "States": [{ "Name": "Inactive" }, { "Name": "Active" }]
+        "States": [
+            {
+                "Name": "Inactive"
+            },
+            {
+                "Name": "Active"
+            }
+        ]
+    },
+    "fr.stalexcorp.msfschaseplane.cinematic": {
+        "Name": "Cinematic",
+        "Tooltip": "Toggle ChasePlane cinematic mode. The key is highlighted while it is on.",
+        "States": [
+            {
+                "Name": "Off"
+            },
+            {
+                "Name": "On"
+            }
+        ]
+    },
+    "fr.stalexcorp.msfschaseplane.flashlight": {
+        "Name": "Flashlight",
+        "Tooltip": "Toggle the ChasePlane flashlight. The key is highlighted while it is on.",
+        "States": [
+            {
+                "Name": "Off"
+            },
+            {
+                "Name": "On"
+            }
+        ]
     },
     "Localization": {
         "Internal": "Internal",

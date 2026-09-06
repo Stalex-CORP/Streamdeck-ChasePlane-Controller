@@ -1,6 +1,7 @@
 import streamDeck from "@elgato/streamdeck";
 
 import { CameraAction } from "./actions/camera";
+import { CinematicAction, FlashlightAction } from "./actions/toggle";
 import { ChasePlaneClient } from "./chaseplane/client";
 
 const client = new ChasePlaneClient({
@@ -10,6 +11,8 @@ const client = new ChasePlaneClient({
 
 // Actions must be registered before connecting.
 streamDeck.actions.registerAction(new CameraAction(client));
+streamDeck.actions.registerAction(new CinematicAction(client));
+streamDeck.actions.registerAction(new FlashlightAction(client));
 
 // Stream Deck stops a plugin by closing its connection and waiting for the process to exit.
 for (const signal of ["SIGTERM", "SIGINT", "SIGHUP"] as const) {

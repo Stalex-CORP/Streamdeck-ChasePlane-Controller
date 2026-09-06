@@ -28,7 +28,8 @@ fr.stalexcorp.msfschaseplane.sdPlugin/   the plugin (what gets packaged)
   bin/plugin.js                       bundle, generated at build (git-ignored)
 src/
   plugin.ts                           entry point: registers the action, connects, starts the client
-  actions/camera.ts               "Set Camera" action (states, images, title, property inspector)
+  actions/camera.ts               "Camera" action (states, images, title, property inspector)
+  actions/toggle.ts               "Cinematic" / "Flashlight" on-off actions
   chaseplane/client.ts                bridge client (handshake, request/reply, events, reconnection)
   chaseplane/protocol.ts              protocol types and helpers
   images/{internal,external,world}.png white 64x64 icons used to build the key images

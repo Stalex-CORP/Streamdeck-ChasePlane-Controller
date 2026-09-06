@@ -26,7 +26,9 @@
         "Debug": "enabled"
     },
     "ApplicationsToMonitor": {
-        "windows": ["CP MSFS Bridge.exe"]
+        "windows": [
+            "CP MSFS Bridge.exe"
+        ]
     },
     "Actions": [
         {
@@ -35,7 +37,9 @@
             "Icon": "imgs/actions/camera/icon",
             "Tooltip": "Switch to a ChasePlane camera view. The key is highlighted while the view is active.",
             "PropertyInspectorPath": "ui/camera.html",
-            "Controllers": ["Keypad"],
+            "Controllers": [
+                "Keypad"
+            ],
             "DisableAutomaticStates": true,
             "States": [
                 {
@@ -49,6 +53,46 @@
                     "Image": "imgs/actions/camera/keys/default-active",
                     "TitleAlignment": "bottom",
                     "FontSize": 9
+                }
+            ]
+        },
+        {
+            "Name": "Cinematic",
+            "UUID": "fr.stalexcorp.msfschaseplane.cinematic",
+            "Icon": "imgs/actions/cinematic/icon",
+            "Tooltip": "Toggle ChasePlane cinematic mode. The key is highlighted while it is on.",
+            "Controllers": [
+                "Keypad"
+            ],
+            "DisableAutomaticStates": true,
+            "States": [
+                {
+                    "Name": "Off",
+                    "Image": "imgs/actions/camera/keys/cinematic-inactive"
+                },
+                {
+                    "Name": "On",
+                    "Image": "imgs/actions/camera/keys/cinematic-active"
+                }
+            ]
+        },
+        {
+            "Name": "Flashlight",
+            "UUID": "fr.stalexcorp.msfschaseplane.flashlight",
+            "Icon": "imgs/actions/flashlight/icon",
+            "Tooltip": "Toggle the ChasePlane flashlight. The key is highlighted while it is on.",
+            "Controllers": [
+                "Keypad"
+            ],
+            "DisableAutomaticStates": true,
+            "States": [
+                {
+                    "Name": "Off",
+                    "Image": "imgs/actions/camera/keys/flashlight-inactive"
+                },
+                {
+                    "Name": "On",
+                    "Image": "imgs/actions/camera/keys/flashlight-active"
                 }
             ]
         }

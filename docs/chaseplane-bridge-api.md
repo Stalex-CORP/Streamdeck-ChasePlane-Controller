@@ -69,6 +69,8 @@ Côté panel in-game (autre client, même socket) : `get_all_assignments` → `{
 
 Pour un Stream Deck : écouter `cam_mode_set` pour surligner la touche de la vue active (`preset_guid` == `guid` de la vue), et `view_*` pour rafraîchir la liste.
 
+Confirmé le 06/09/2026 : `cam_cinematic_toggle` et `cam_flashlight_toggle` répondent `{ success: true }`. L'état cinématique revient dans `cam_mode_set.cinematic_enabled` ; l'état de la flashlight est dans `sim_state` (`flashlight_available`, `flashlight_enabled`), poussé en continu, pas dans `camera_runtime_state`.
+
 Confirmé le 06/09/2026 : **réordonner les vues dans ChasePlane ne pousse aucun événement** (ni `view_modified`, ni autre). Un client qui dépend de l'ordre (vue par défaut = première vue interne) doit relancer `get_views` au moment de s'en servir.
 
 ## Squelette Node (SDK Elgato `@elgato/streamdeck`, côté plugin)

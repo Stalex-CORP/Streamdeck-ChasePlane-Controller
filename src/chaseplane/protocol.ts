@@ -68,6 +68,14 @@ export type CurrentCamera = {
 	master_enabled?: boolean;
 };
 
+/** Payload of the `sim_state` push event (frequent; only the fields used by the plugin). */
+export type SimState = {
+	/** Reported true only while the flashlight is on (not a precondition). */
+	flashlight_available?: boolean;
+	/** Flashlight on. */
+	flashlight_enabled?: boolean;
+};
+
 /** Payload of the `initialized` event. */
 export type SystemInfo = {
 	/** ChasePlane version. */

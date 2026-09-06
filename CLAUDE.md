@@ -23,10 +23,11 @@ fr.stalexcorp.msfschaseplane.sdPlugin/   the packaged plugin — manifest.json (
                                       vendored in ui/sdpi-components.js), imgs/ (manifest icons)
   bin/, logs/, imgs/actions/camera/keys/   generated / runtime — git-ignored, never edit by hand
 src/plugin.ts                         entry: register actions BEFORE streamDeck.connect(); exits on SIGTERM
-src/actions/camera.ts             the only action (two manifest states: 0 Inactive, 1 Active)
+src/actions/camera.ts             "Camera" action (two manifest states: 0 Inactive, 1 Active)
+src/actions/toggle.ts             "Cinematic" / "Flashlight" on-off actions (shared ToggleAction base)
 src/chaseplane/client.ts              bridge client: reconnect loop, request/reply, push events
 src/chaseplane/protocol.ts            protocol types + getViewDisplayName()
-src/images/{internal,external,world}.png   user-provided white 64x64 icons (source of the key images)
+src/images/{internal,external,world}.png, {cinematic,flashlight}.svg   white icons (source of the key images)
 scripts/key-images.mjs                builds keys/*.svg (modes from src/images, default states from the ChasePlane category icon) at every rollup build
 scripts/probe.mjs                     `npm run probe [-- <guid>|--watch]` — raw bridge API probe
 docs/chaseplane-bridge-api.md         reverse-engineered API reference, confirmed with live captures

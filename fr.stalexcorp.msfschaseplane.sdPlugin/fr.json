@@ -4,7 +4,38 @@
     "fr.stalexcorp.msfschaseplane.camera": {
         "Name": "Caméra",
         "Tooltip": "Bascule sur une vue caméra ChasePlane. La touche est mise en évidence tant que la vue est active.",
-        "States": [{ "Name": "Inactive" }, { "Name": "Active" }]
+        "States": [
+            {
+                "Name": "Inactive"
+            },
+            {
+                "Name": "Active"
+            }
+        ]
+    },
+    "fr.stalexcorp.msfschaseplane.cinematic": {
+        "Name": "Cinématique",
+        "Tooltip": "Active ou désactive le mode cinématique de ChasePlane. La touche est mise en évidence tant qu'il est actif.",
+        "States": [
+            {
+                "Name": "Éteint"
+            },
+            {
+                "Name": "Allumé"
+            }
+        ]
+    },
+    "fr.stalexcorp.msfschaseplane.flashlight": {
+        "Name": "Lampe torche",
+        "Tooltip": "Active ou désactive la lampe torche de ChasePlane. La touche est mise en évidence tant qu'elle est allumée.",
+        "States": [
+            {
+                "Name": "Éteint"
+            },
+            {
+                "Name": "Allumé"
+            }
+        ]
     },
     "Localization": {
         "Internal": "Interne",

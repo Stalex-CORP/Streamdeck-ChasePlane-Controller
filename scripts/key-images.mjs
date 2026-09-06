@@ -1,6 +1,6 @@
 /**
- * Generates the key images of the "Camera" action in <plugin>/imgs/actions/camera/keys/: for each
- * src/images/<mode>.png, <mode>-inactive / -active / -offline (set by path at runtime), plus the manifest
+ * Generates the key images in <plugin>/imgs/actions/camera/keys/: for each src/images/<mode>.png and each
+ * toggle glyph src/images/<toggle>.svg, <name>-inactive / -active / -offline (set by path at runtime), plus the manifest
  * state images default-inactive / default-active built from the ChasePlane glyph (imgs/plugin/category-icon@2x.png,
  * shown while no view is selected). Run by rollup or standalone: `node scripts/key-images.mjs`.
  */
@@ -11,6 +11,12 @@ export const MODES = /** @type {const} */ ([
 	{ name: "internal", color: "#3b82f6" },
 	{ name: "external", color: "#f59e0b" },
 	{ name: "world", color: "#10b981" },
+]);
+
+/** Toggle actions (src/images/<name>.svg, white glyph on transparent background). */
+export const TOGGLES = /** @type {const} */ ([
+	{ name: "cinematic", color: "#a855f7" },
+	{ name: "flashlight", color: "#facc15", activeIcon: "flashlight-on" },
 ]);
 
 const BACKGROUND = "#1f2126";
@@ -74,13 +80,25 @@ export function generateKeyImages(srcDir, outDir) {
 		);
 	}
 
-	for (const { name, color } of MODES) {
-		const src = path.join(srcDir, `${name}.png`);
+	const dataUri = (file) => {
+		const src = path.join(srcDir, file);
 		sources.push(src);
-		const icon = `data:image/png;base64,${fs.readFileSync(src).toString("base64")}`;
-
+		const mime = file.endsWith(".svg") ? "image/svg+xml" : "image/png";
+		return `data:${mime};base64,${fs.readFileSync(src).toString("base64")}`;
+	};
+	const icons = [
+		...MODES.map((m) => ({ ...m, icon: dataUri(`${m.name}.png`), size: 44 })),
+		...TOGGLES.map((t) => ({
+			...t,
+			icon: dataUri(`${t.name}.svg`),
+			activeIcon: t.activeIcon ? dataUri(`${t.activeIcon}.svg`) : undefined,
+			size: 30,
+		})),
+	];
+	for (const { name, color, icon, activeIcon, size } of icons) {
 		for (const state of ["inactive", "active", "offline"]) {
-			writeIfChanged(path.join(outDir, `${name}-${state}.svg`), buildKeySvg({ icon, color, state }));
+			const svg = buildKeySvg({ icon: state === "active" ? (activeIcon ?? icon) : icon, color, state, size });
+			writeIfChanged(path.join(outDir, `${name}-${state}.svg`), svg);
 		}
 	}
 

@@ -8,6 +8,7 @@ import {
 	type CameraView,
 	type CurrentCamera,
 	type GetViewsReply,
+	type SimState,
 	type SystemInfo,
 } from "./protocol";
 
@@ -39,6 +40,8 @@ export type ChasePlaneClientEvents = {
 	viewsChanged: [views: CameraView[]];
 	/** Active camera changed. */
 	cameraChanged: [camera: CurrentCamera];
+	/** Flashlight availability or state changed. */
+	flashlightChanged: [state: SimState];
 };
 
 /** Options of {@link ChasePlaneClient}. */
@@ -92,6 +95,8 @@ export class ChasePlaneClient extends EventEmitter<ChasePlaneClientEvents> {
 	public aircraft = "";
 	/** Last known active camera. */
 	public currentCamera: CurrentCamera | null = null;
+	/** Whether the flashlight is on (from `sim_state`). */
+	public flashlightEnabled = false;
 	/** Whether the bridge accepts requests. */
 	public isReady = false;
 	/** Reported on `initialized`. */
@@ -135,6 +140,14 @@ export class ChasePlaneClient extends EventEmitter<ChasePlaneClientEvents> {
 	 */
 	public get activeGuid(): string | null {
 		return this.currentCamera?.preset_guid ?? null;
+	}
+
+	/**
+	 * Whether cinematic mode is on.
+	 * @returns `true` when on.
+	 */
+	public get cinematicEnabled(): boolean {
+		return this.currentCamera?.cinematic_enabled === true;
 	}
 
 	/**
@@ -239,6 +252,22 @@ export class ChasePlaneClient extends EventEmitter<ChasePlaneClientEvents> {
 	}
 
 	/**
+	 * Toggles cinematic mode; the new state comes back through `cam_mode_set`.
+	 * @returns Resolved when the bridge acknowledged the request.
+	 */
+	public toggleCinematic(): Promise<unknown> {
+		return this.request("cam_cinematic_toggle");
+	}
+
+	/**
+	 * Toggles the flashlight; the new state comes back through `sim_state`.
+	 * @returns Resolved when the bridge acknowledged the request.
+	 */
+	public toggleFlashlight(): Promise<unknown> {
+		return this.request("cam_flashlight_toggle");
+	}
+
+	/**
 	 * Cancels every timer.
 	 */
 	private clearTimers(): void {
@@ -323,6 +352,16 @@ export class ChasePlaneClient extends EventEmitter<ChasePlaneClientEvents> {
 				this.currentCamera = (msg.payload as CurrentCamera) ?? null;
 				this.emit("cameraChanged", this.currentCamera ?? {});
 				break;
+
+			case "sim_state": {
+				const state = (msg.payload as SimState) ?? {};
+				const enabled = state.flashlight_enabled === true;
+				if (enabled !== this.flashlightEnabled) {
+					this.flashlightEnabled = enabled;
+					this.emit("flashlightChanged", state);
+				}
+				break;
+			}
 
 			case "view_created":
 			case "view_modified":
