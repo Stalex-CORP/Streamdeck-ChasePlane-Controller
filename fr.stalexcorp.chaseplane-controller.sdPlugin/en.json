@@ -1,7 +1,7 @@
 {
-    "Name": "ChasePlane",
+    "Name": "ChasePlane Controller",
     "Description": "Control ChasePlane (MSFS 2024) from your Stream Deck: switch to any Internal, External or World camera view, toggle cinematic mode and the flashlight. Keys light up while the view or feature is active.",
-    "fr.stalexcorp.msfschaseplane.camera": {
+    "fr.stalexcorp.chaseplane-controller.camera": {
         "Name": "Camera",
         "Tooltip": "Switch to a ChasePlane camera view. The key is highlighted while the view is active.",
         "States": [
@@ -13,7 +13,7 @@
             }
         ]
     },
-    "fr.stalexcorp.msfschaseplane.cinematic": {
+    "fr.stalexcorp.chaseplane-controller.cinematic": {
         "Name": "Cinematic",
         "Tooltip": "Toggle ChasePlane cinematic mode. The key is highlighted while it is on.",
         "States": [
@@ -25,7 +25,7 @@
             }
         ]
     },
-    "fr.stalexcorp.msfschaseplane.flashlight": {
+    "fr.stalexcorp.chaseplane-controller.flashlight": {
         "Name": "Flashlight",
         "Tooltip": "Toggle the ChasePlane flashlight. The key is highlighted while it is on.",
         "States": [

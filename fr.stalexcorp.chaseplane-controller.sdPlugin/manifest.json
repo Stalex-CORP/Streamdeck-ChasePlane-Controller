@@ -1,16 +1,16 @@
 {
     "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
-    "Name": "ChasePlane",
+    "Name": "ChasePlane Controller",
     "Version": "1.0.0.0",
     "Author": "Stalex CORP",
     "Description": "Control ChasePlane (MSFS 2024) from your Stream Deck: switch to any Internal, External or World camera view, toggle cinematic mode and the flashlight. Keys light up while the view or feature is active.",
-    "Category": "ChasePlane",
+    "Category": "ChasePlane Controller",
     "CategoryIcon": "imgs/plugin/category-icon",
     "Icon": "imgs/plugin/marketplace",
-    "URL": "https://github.com/stalexcorp/streamdeck-msfschaseplane",
-    "SupportURL": "https://github.com/stalexcorp/streamdeck-msfschaseplane/issues",
+    "URL": "https://github.com/Stalex-CORP/Streamdeck-ChasePlane-Controller",
+    "SupportURL": "https://github.com/Stalex-CORP/Streamdeck-ChasePlane-Controller/issues",
     "CodePath": "bin/plugin.js",
-    "UUID": "fr.stalexcorp.msfschaseplane",
+    "UUID": "fr.stalexcorp.chaseplane-controller",
     "SDKVersion": 3,
     "Software": {
         "MinimumVersion": "7.1"
@@ -32,7 +32,7 @@
     "Actions": [
         {
             "Name": "Camera",
-            "UUID": "fr.stalexcorp.msfschaseplane.camera",
+            "UUID": "fr.stalexcorp.chaseplane-controller.camera",
             "Icon": "imgs/actions/camera/icon",
             "Tooltip": "Switch to a ChasePlane camera view. The key is highlighted while the view is active.",
             "PropertyInspectorPath": "ui/camera.html",
@@ -57,7 +57,7 @@
         },
         {
             "Name": "Cinematic",
-            "UUID": "fr.stalexcorp.msfschaseplane.cinematic",
+            "UUID": "fr.stalexcorp.chaseplane-controller.cinematic",
             "Icon": "imgs/actions/cinematic/icon",
             "Tooltip": "Toggle ChasePlane cinematic mode. The key is highlighted while it is on.",
             "Controllers": [
@@ -78,7 +78,7 @@
         },
         {
             "Name": "Flashlight",
-            "UUID": "fr.stalexcorp.msfschaseplane.flashlight",
+            "UUID": "fr.stalexcorp.chaseplane-controller.flashlight",
             "Icon": "imgs/actions/flashlight/icon",
             "Tooltip": "Toggle the ChasePlane flashlight. The key is highlighted while it is on.",
             "Controllers": [

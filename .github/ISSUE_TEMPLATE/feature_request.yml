@@ -1,0 +1,39 @@
+name: Feature request
+description: Suggest a new action or an improvement.
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What would you like to do from your Stream Deck?
+      description: Describe the use case rather than the solution, e.g. "switch between two saved drone positions during a flyby".
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behaviour
+      description: How should the key(s) behave? What should the key settings offer?
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Type
+      options:
+        - New action
+        - Change to an existing action
+        - Key visuals / icons
+        - Property inspector (key settings)
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: chaseplane
+    attributes:
+      label: How is it done in ChasePlane today?
+      description: Which ChasePlane feature, panel or shortcut does this map to? This helps check whether the ChasePlane bridge exposes it.
+  - type: textarea
+    id: context
+    attributes:
+      label: Anything else
+      description: Screenshots, mock-ups, links.

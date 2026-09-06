@@ -138,7 +138,7 @@ if (
 ) {
 	generateKeyImages(
 		path.resolve("src/images"),
-		path.resolve("fr.stalexcorp.msfschaseplane.sdPlugin/imgs/actions/camera/keys"),
+		path.resolve("fr.stalexcorp.chaseplane-controller.sdPlugin/imgs/actions/camera/keys"),
 	);
 	console.log("Key images generated.");
 }

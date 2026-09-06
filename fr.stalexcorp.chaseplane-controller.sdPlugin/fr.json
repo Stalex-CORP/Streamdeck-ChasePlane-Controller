@@ -1,7 +1,7 @@
 {
-    "Name": "ChasePlane",
+    "Name": "ChasePlane Controller",
     "Description": "Pilotez ChasePlane (MSFS 2024) depuis votre Stream Deck : basculez sur n'importe quelle vue Interne, Externe ou Monde, activez le mode cinématique et la lampe torche. Les touches s'allument tant que la vue ou la fonction est active.",
-    "fr.stalexcorp.msfschaseplane.camera": {
+    "fr.stalexcorp.chaseplane-controller.camera": {
         "Name": "Caméra",
         "Tooltip": "Bascule sur une vue caméra ChasePlane. La touche est mise en évidence tant que la vue est active.",
         "States": [
@@ -13,7 +13,7 @@
             }
         ]
     },
-    "fr.stalexcorp.msfschaseplane.cinematic": {
+    "fr.stalexcorp.chaseplane-controller.cinematic": {
         "Name": "Cinématique",
         "Tooltip": "Active ou désactive le mode cinématique de ChasePlane. La touche est mise en évidence tant qu'il est actif.",
         "States": [
@@ -25,7 +25,7 @@
             }
         ]
     },
-    "fr.stalexcorp.msfschaseplane.flashlight": {
+    "fr.stalexcorp.chaseplane-controller.flashlight": {
         "Name": "Lampe torche",
         "Tooltip": "Active ou désactive la lampe torche de ChasePlane. La touche est mise en évidence tant qu'elle est allumée.",
         "States": [

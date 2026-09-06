@@ -13,7 +13,6 @@
 					placeholder: "Select a view",
 					connected: "ChasePlane connected",
 					disconnected: "ChasePlane not connected",
-					active: "This view is currently active",
 				},
 				fr: {
 					mode: "Mode",
@@ -22,7 +21,6 @@
 					placeholder: "Choisir une vue",
 					connected: "ChasePlane connecté",
 					disconnected: "ChasePlane non connecté",
-					active: "Cette vue est actuellement active",
 				},
 			};
 		</script>
@@ -42,9 +40,6 @@
 			}
 			.status.connected .dot {
 				background: #2ea44f;
-			}
-			.status .active {
-				color: #2ea44f;
 			}
 		</style>
 	</head>
@@ -69,7 +64,6 @@
 			<div id="status" class="status" hidden>
 				<span class="dot"></span>
 				<span id="status-text"></span>
-				<span id="status-active" class="active" hidden>●</span>
 			</div>
 		</sdpi-item>
 
@@ -77,7 +71,6 @@
 			const { streamDeckClient, i18n } = SDPIComponents;
 			const status = document.getElementById("status");
 			const text = document.getElementById("status-text");
-			const active = document.getElementById("status-active");
 
 			streamDeckClient.sendToPropertyInspector.subscribe((message) => {
 				const payload = message.payload;
@@ -88,8 +81,6 @@
 				text.textContent = payload.connected
 					? `${i18n.getMessage("connected")}${payload.aircraft ? ` (${payload.aircraft})` : ""}`
 					: i18n.getMessage("disconnected");
-				active.hidden = payload.isActive !== true;
-				active.title = i18n.getMessage("active");
 			});
 		</script>
 	</body>

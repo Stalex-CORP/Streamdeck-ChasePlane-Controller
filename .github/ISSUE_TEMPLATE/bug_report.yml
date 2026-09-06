@@ -1,0 +1,83 @@
+name: Bug report
+description: Something does not work as expected in the Stream Deck plugin.
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Please fill in the environment fields: most issues depend on the ChasePlane and Stream Deck versions.
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, what happened instead?
+      placeholder: Pressing the "Pilot" key shows the alert icon while ChasePlane is running...
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      value: |
+        1. Start MSFS 2024 with ChasePlane, load a flight
+        2. Add a "Camera" key, select ...
+        3. Press the key
+    validations:
+      required: true
+  - type: dropdown
+    id: action
+    attributes:
+      label: Action concerned
+      multiple: true
+      options:
+        - Camera
+        - Cinematic
+        - Flashlight
+        - Property inspector (key settings)
+        - Connection / status
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: plugin-version
+    attributes:
+      label: Plugin version
+      description: Stream Deck app → Plugins tab → ChasePlane Controller.
+      placeholder: 1.0.0
+    validations:
+      required: true
+  - type: input
+    id: streamdeck-version
+    attributes:
+      label: Stream Deck software version and device
+      placeholder: 7.1.0, Stream Deck XL
+    validations:
+      required: true
+  - type: input
+    id: chaseplane-version
+    attributes:
+      label: ChasePlane version
+      description: Shown in the ChasePlane in-sim panel or the ChasePlane Remote page (http://localhost:8651/).
+      placeholder: 2026.35.4.22
+    validations:
+      required: true
+  - type: input
+    id: sim
+    attributes:
+      label: Simulator and aircraft
+      placeholder: MSFS 2024 (Store), PMDG 777-300ER
+  - type: textarea
+    id: logs
+    attributes:
+      label: Plugin log
+      description: |
+        Attach or paste the newest log file from `%APPDATA%\Elgato\StreamDeck\Plugins\fr.stalexcorp.chaseplane-controller.sdPlugin\logs\` (`fr.stalexcorp.chaseplane-controller.0.log`). Remove anything personal.
+      render: text
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: ChasePlane Remote (http://localhost:8651/) works while the issue occurs, so the ChasePlane bridge itself is running.
+        - label: I restarted the Stream Deck software and the issue persists.

@@ -8,7 +8,7 @@ import url from "node:url";
 import { generateKeyImages } from "./scripts/key-images.mjs";
 
 const isWatching = !!process.env.ROLLUP_WATCH;
-const sdPlugin = "fr.stalexcorp.msfschaseplane.sdPlugin";
+const sdPlugin = "fr.stalexcorp.chaseplane-controller.sdPlugin";
 
 /**
  * @type {import('rollup').RollupOptions}

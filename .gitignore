@@ -8,3 +8,6 @@ node_modules/
 
 # Packaged plugin
 dist/
+
+# Marketplace listing assets (Maker Console), not part of the plugin
+Elgato/

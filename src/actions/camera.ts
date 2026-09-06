@@ -72,7 +72,7 @@ const MODE_LABEL_KEY: Record<CameraMode, string> = {
  * Switches ChasePlane to a camera view. One key = one view; the key is "Active" while that view is
  * the current camera.
  */
-@action({ UUID: "fr.stalexcorp.msfschaseplane.camera" })
+@action({ UUID: "fr.stalexcorp.chaseplane-controller.camera" })
 export class CameraAction extends SingletonAction<CameraSettings> {
 	/** Logger. */
 	private readonly logger = streamDeck.logger.createScope("Camera");
@@ -289,12 +289,10 @@ export class CameraAction extends SingletonAction<CameraSettings> {
 		const current = streamDeck.ui.action;
 		if (!current || (actionId !== undefined && current.id !== actionId)) return;
 
-		const settings = this.settingsById.get(current.id);
 		void streamDeck.ui.sendToPropertyInspector({
 			event: "status",
 			connected: this.client.isReady,
 			aircraft: this.client.aircraft,
-			isActive: !!settings?.guid && this.client.activeGuid === settings.guid,
 		} satisfies JsonObject);
 	}
 }

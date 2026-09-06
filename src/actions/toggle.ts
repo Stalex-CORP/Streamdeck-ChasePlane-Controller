@@ -158,7 +158,7 @@ abstract class ToggleAction extends SingletonAction<JsonObject> {
 /**
  * Toggles ChasePlane cinematic mode.
  */
-@action({ UUID: "fr.stalexcorp.msfschaseplane.cinematic" })
+@action({ UUID: "fr.stalexcorp.chaseplane-controller.cinematic" })
 export class CinematicAction extends ToggleAction {
 	/**
 	 * Initializes a new instance of the {@link CinematicAction} class.
@@ -182,7 +182,7 @@ export class CinematicAction extends ToggleAction {
 /**
  * Toggles the ChasePlane flashlight.
  */
-@action({ UUID: "fr.stalexcorp.msfschaseplane.flashlight" })
+@action({ UUID: "fr.stalexcorp.chaseplane-controller.flashlight" })
 export class FlashlightAction extends ToggleAction {
 	/**
 	 * Initializes a new instance of the {@link FlashlightAction} class.

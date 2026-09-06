@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: ChasePlane support (Parallel 42)
+    url: https://parallel42.com/support
+    about: Problems with ChasePlane itself (camera behaviour, views, the in-sim panel) belong to Parallel 42, not to this plugin.
