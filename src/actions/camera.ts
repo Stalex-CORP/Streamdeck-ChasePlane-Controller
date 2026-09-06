@@ -135,13 +135,25 @@ export class CameraAction extends SingletonAction<CameraSettings> {
 			return ev.action.showAlert();
 		}
 
+		// Pressing the active view's key goes back to the default view (first internal one). The list is
+		// re-read first: the bridge pushes no event when views are reordered.
+		let target: string | undefined = guid;
+		if (this.client.activeGuid === guid) {
+			await this.client.refreshViews();
+			target = this.client.getViews(CameraMode.Internal)[0]?.guid;
+		}
+		if (!target) {
+			this.logger.warn("No internal view to go back to");
+			return ev.action.showAlert();
+		}
+
 		try {
-			await this.client.setViewByGuid(guid);
+			await this.client.setViewByGuid(target);
 			// Reflect the change before the bridge confirms it through `cam_mode_set`.
-			this.client.currentCamera = { ...this.client.currentCamera, preset_guid: guid };
+			this.client.currentCamera = { ...this.client.currentCamera, preset_guid: target };
 			this.renderAll();
 		} catch (err) {
-			this.logger.error(`set_view_by_guid failed for ${guid}: ${(err as Error).message}`);
+			this.logger.error(`set_view_by_guid failed for ${target}: ${(err as Error).message}`);
 			await ev.action.showAlert();
 		}
 	}

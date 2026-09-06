@@ -152,7 +152,9 @@ export class ChasePlaneClient extends EventEmitter<ChasePlaneClientEvents> {
 	 * @returns Views of that mode, in ChasePlane order.
 	 */
 	public getViews(mode: CameraMode): CameraView[] {
-		return this.views.filter((v) => v.mode === mode);
+		return this.views
+			.filter((v) => v.mode === mode)
+			.sort((a, b) => (a.index ?? Number.MAX_SAFE_INTEGER) - (b.index ?? Number.MAX_SAFE_INTEGER));
 	}
 
 	/**
